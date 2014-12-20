@@ -1,51 +1,66 @@
-import argparse
+#!/usr/bin/python
+#
+# Copyright 2014 Chris Cartland. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+"""
+This converts a CSV data from the Octavia Street Hilton expense spreadsheet
+into a cleaned up JSON format.
+"""
 import csv
 import json
 import sys
 
-from decimal import Decimal
 from re import sub
 
-parser = argparse.ArgumentParser(description='Convert Octavia Street Hilton expenses spreadsheet data to JSON.')
-parser.add_argument('--csv', dest='csv_file', metavar='c', type=str, nargs=1,
-                   help='an integer for the accumulator')
-parser.add_argument('--json', dest='json_file', metavar='j', type=str, nargs='?', default=None,
-                   help='output JSON filename')
+def main():
+  data = []
+  keys = None
 
-args = parser.parse_args()
-
-csv_file_name = args.csv_file[0]
-try:
-  csvfile = open(csv_file_name, 'r')
-except Exception as e:
-  print 'Could not open CSV file: "%s"' % csv_file_name
-  raise e
-
-json_file_name = csv_file_name + '.json'
-if args.json_file is not None:
-  json_file_name = args.json_file
-
-try:
-  jsonfile = open(json_file_name, 'w')
-except Exception as e:
-  print 'Could not open JSON file to write: "%s"' % json_file_name
-  raise e
-
-reader = csv.DictReader(csvfile)
-data = []
-for row in reader:
+  def row_to_dict(row):
+    d = dict()
+    for i in xrange(len(keys)):
+      d[keys[i]] = row[i]
+    return d
+  for row in csv.reader(iter(sys.stdin.readline, '')):
+    if keys is None:
+      # The first row in the CSV is the keys
+      keys = row
+      continue
+    row = row_to_dict(row)
     if row['Purchaser'].startswith('...'):
       continue # skip header rows
-    date = row['Date'].split('/') # 4/31/2014
-    row['Date'] = '%s-%s-%s' % (date[2], date[0].zfill(2), date[1].zfill(2)) # 2014-04-31
+
+    # Convert 4/31/2014 to 2014-04-31
+    date = row['Date'].split('/')
+    row['Date'] = '%s-%s-%s' % (date[2], date[0].zfill(2), date[1].zfill(2))
+
     transaction = dict()
     for key, value in row.items():
+      # Remove ' owes...' from end of any keys
       key = key.rsplit(' owes...', 1)[0]
+      # Keys should be lowercase
       key = key.lower()
       if key in ['amount', 'cartland', 'npstanford', 'rcrabb', 'stromme']:
         if value:
+          # Sanitize money, keep '-' and '.'
           value = sub(r'[^\d\-.]', '', value)
       transaction[key] = value
     data.append(transaction)
 
-json.dump(data, jsonfile)
+  print json.dumps(data)
+
+if __name__ == '__main__':
+  main()
