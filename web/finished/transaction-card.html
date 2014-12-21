@@ -1,0 +1,129 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/core-icon-button/core-icon-button.html">
+
+<polymer-element name="transaction-card" attributes="transaction show user">
+  <template hidden?="{{hidden}}">
+    <style>
+    :host {
+      display: block;
+      position: relative;
+      background-color: white;
+      padding: 20px;
+      width: 100%;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+    polyfill-next-selector { content: '.card-header h2'; }
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 300;
+    }
+    core-icon-button {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      color: #636363;
+    }
+    :host([favorite]) core-icon-button {
+      color: #da4336;
+    }
+    </style>
+
+    <div class="card-header" layout horizontal center>
+      <h2>{{transaction.amount}} {{transaction.description}}</h2>
+    </div>
+    <b>{{transaction.purchaser}} {{transaction.date}}</b>
+    <debt-list
+      debts="{{transaction.debts}}"
+      user="{{user}}"
+      purchaser="{{transaction.purchaser}}">
+    </debt-list>
+    <i
+      hidden?="{{!transaction.notes}}">
+      <br />
+      {{ transaction.notes }}
+    </i>
+    <core-icon-button
+      id="favicon"
+      icon="favorite"
+      on-tap="{{favoriteTapped}}">
+    </core-icon-button>
+    <content></content>   
+  </template>
+  <script>
+  Polymer({
+    ready: function() {
+      var currentUser = 'cartland';
+      var p = this.transaction.purchaser;
+      switch (p) {
+        case 'cartland':
+          if (p == currentUser) {
+            this.style.background = '#4CAF50'; // 500
+          } else {
+            this.style.background = '#A5D6A7'; // 500
+          }
+          break;
+        case 'npstanford':
+          if (p == currentUser) {
+            this.style.background = '#F44336'; // 500
+          } else {
+            this.style.background = '#EF9A9A'; // 500
+          }
+          break;
+        case 'rcrabb':
+          if (p == currentUser) {
+            this.style.background = '#03A9F4'; // 500
+          } else {
+            this.style.background = '#81D4FA'; // 500
+          }
+          break;
+        case 'stromme':
+          if (p == currentUser) {
+            this.style.background = '#FF9800'; // 500
+          } else {
+            this.style.background = '#FFCC80'; // 500
+          }
+          break;
+      }
+    },
+    publish: {
+      favorite: {
+        value: false,
+        reflect: true
+      }
+    },
+    favoriteTapped: function(event, detail, sender) {
+      this.favorite = !this.favorite;
+      this.fire('favorite-tap');
+    },
+    created: function() {
+      this.hidden = false;
+    },
+    showChanged: function(oldValue, newValue) {
+      var t = this.transaction;
+      if (newValue == 'purchases') {
+        this.hidden = (this.user != t.purchaser);
+      } else if (newValue == 'debts') {
+        for (var i = 0; i < t.debts.length; i++) {
+          var d = t.debts[i];
+          if (d.debtor == this.user && t.purchaser != this.user) {
+            if (d.amount) {
+              this.hidden = false;
+            } else {
+              this.hidden = true;
+            }
+            return;
+          }
+        }
+        this.hidden = true;
+        return;
+      } else if (newValue == 'all') {
+        this.hidden = false;
+      } else {
+        console.log('Error, do not recognize show state: ' + newValue);
+      }
+    }
+  });
+  </script>
+</polymer-element>

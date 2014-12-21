@@ -1,0 +1,3 @@
+[submodule "components/polymer-filters"]
+	path = components/polymer-filters
+	url = git@github.com:addyosmani/polymer-filters.git

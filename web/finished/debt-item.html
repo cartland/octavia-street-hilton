@@ -1,0 +1,28 @@
+<link rel="import" href="../components/polymer/polymer.html">
+
+<polymer-element name="debt-item" attributes="debtor amount user">
+  <template>
+    <style>
+    :host {
+      display: inline;
+      position: relative;
+      font-weight: 300;
+      margin-right: 20px;
+    }
+    </style>
+
+    {{ debtor }}<br />
+    {{ amount }}
+
+    <content></content>   
+  </template>
+  <script>
+  Polymer({
+    ready: function() {
+      if (this.debtor == this.user) {
+        this.style.fontWeight = 'bold';
+      }
+    }
+  });
+  </script>
+</polymer-element>
