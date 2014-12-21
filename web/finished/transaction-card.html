@@ -105,19 +105,23 @@
       if (newValue == 'purchases') {
         this.hidden = (this.user != t.purchaser);
       } else if (newValue == 'debts') {
-        for (var i = 0; i < t.debts.length; i++) {
-          var d = t.debts[i];
-          if (d.debtor == this.user && t.purchaser != this.user) {
-            if (d.amount) {
-              this.hidden = false;
-            } else {
-              this.hidden = true;
+        var debts = t.debts;
+        if (!debts) {
+          this.hidden = true;
+        } else {
+          for (var i = 0; i < debts.length; i++) {
+            var d = t.debts[i];
+            if (d.debtor == this.user && t.purchaser != this.user) {
+              if (d.amount) {
+                this.hidden = false;
+              } else {
+                this.hidden = true;
+              }
+              return;
             }
-            return;
           }
+          this.hidden = true;
         }
-        this.hidden = true;
-        return;
       } else if (newValue == 'all') {
         this.hidden = false;
       } else {
