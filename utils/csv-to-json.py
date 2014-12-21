@@ -57,6 +57,11 @@ def main():
         if value:
           # Sanitize money, keep '-' and '.'
           value = sub(r'[^\d\-.]', '', value)
+      if key in ['cartland', 'npstanford', 'rcrabb', 'stromme']:
+        if not 'debts' in transaction:
+          transaction['debts'] = []
+        debt = { 'debtor': key, 'amount': value }
+        transaction['debts'].append(debt)
       transaction[key] = value
     data.append(transaction)
 
