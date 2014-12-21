@@ -1,0 +1,3 @@
+[submodule "web/components/polymer-filters"]
+	path = web/components/polymer-filters
+	url = git@github.com:cartland/polymer-filters.git
