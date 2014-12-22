@@ -34,6 +34,7 @@ def main():
     for i in xrange(len(keys)):
       d[keys[i]] = row[i]
     return d
+  count = 0
   for row in csv.reader(iter(sys.stdin.readline, '')):
     if keys is None:
       # The first row in the CSV is the keys
@@ -48,6 +49,8 @@ def main():
     row['Date'] = '%s-%s-%s' % (date[2], date[0].zfill(2), date[1].zfill(2))
 
     transaction = dict()
+    transaction['id'] = count
+    count += 1
     for key, value in row.items():
       # Remove ' owes...' from end of any keys
       key = key.rsplit(' owes...', 1)[0]

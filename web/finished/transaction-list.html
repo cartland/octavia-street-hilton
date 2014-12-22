@@ -24,6 +24,7 @@
           transaction="{{transaction}}"
           favorite="{{transaction.favorite}}"
           on-favorite-tap="{{handleFavorite}}"
+          on-tap="{{handleTap}}"
           show="{{show}}"
           user="{{user}}"
           >
@@ -37,6 +38,10 @@
     handleFavorite: function(event, detail, sender) {
       var transaction = sender.templateInstance.model.transaction;
       this.$.service.setFavorite(transaction.uid, transaction.favorite);
+    },
+    handleTap: function(event, detail, sender) {
+      var transaction = sender.templateInstance.model.transaction;
+      document.location.href = 'edit.html?id=' + transaction.id;
     }
   });
   </script>
