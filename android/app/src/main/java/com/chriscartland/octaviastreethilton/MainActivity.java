@@ -52,7 +52,6 @@ public class MainActivity extends GoogleOAuthActivity {
         mListView.setAdapter(adapter);
 
         setupFirebase();
-
         setupGoogleSignIn();
     }
 
@@ -75,14 +74,11 @@ public class MainActivity extends GoogleOAuthActivity {
             }
             @Override public void onCancelled(FirebaseError error) {
                 Log.d(TAG, "onCancelled");
-
                 ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
                         R.layout.list_room_item, new ArrayList());
                 mListView.setAdapter(adapter);
             }
         };
-
-        mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
 
         mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
@@ -94,10 +90,19 @@ public class MainActivity extends GoogleOAuthActivity {
                     // user is not logged in
                     Log.d(TAG, "User is not logged in");
                 }
-                mFirebase.child("room_names").removeEventListener(mRoomNamesListener);
-                mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
+                updateAuthDependentListeners();
             }
         });
+        updateAuthDependentListeners();
+    }
+
+    private void updateAuthDependentListeners() {
+        // Firebase does not call value event listeners when the auth state changes.
+        // In order for our event listeners to get data based on new auth information,
+        // we must remove the event listener and add it again every time we detect that
+        // the auth state has changed.
+        mFirebase.child("room_names").removeEventListener(mRoomNamesListener);
+        mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
     }
 
     private void setupGoogleSignIn() {
