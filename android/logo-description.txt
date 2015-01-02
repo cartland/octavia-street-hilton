@@ -1,0 +1,1 @@
+http://romannurik.github.io/AndroidAssetStudio/icons-launcher.html#foreground.type=text&foreground.space.trim=1&foreground.space.pad=0.25&foreground.text.text=129&foreground.text.font=Georgia&foreColor=fff%2C0&crop=0&backgroundShape=circle&backColor=02f%2C100
