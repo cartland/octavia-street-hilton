@@ -23,11 +23,10 @@
     <dimen name="list_item_text_size">24dp</dimen>
     <dimen name="identity_height">96dp</dimen>
     <dimen name="text_padding">8dp</dimen>
-    <dimen name="sign_in_button_width">256dp</dimen>
-    <dimen name="sign_out_button_width">96dp</dimen>
     <dimen name="sign_out_button_height">48dp</dimen>
     <dimen name="sign_out_text_size">12dp</dimen>
     <dimen name="drawer_width">304dp</dimen>
     <dimen name="drawer_divider_padding">2dp</dimen>
     <dimen name="navigation_margin_top">24dp</dimen>
+    <dimen name="drawer_margin">12dp</dimen>
 </resources>
