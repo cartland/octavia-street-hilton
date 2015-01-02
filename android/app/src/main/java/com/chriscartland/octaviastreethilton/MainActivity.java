@@ -5,11 +5,24 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +40,36 @@ public class MainActivity extends ActionBarActivity {
         // on KitKat.
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         drawerLayout.setStatusBarBackgroundColor(res.getColor(R.color.color_primary_dark));
+
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_room_item, new ArrayList<>());
+        mListView = (ListView) findViewById(R.id.room_list);
+        mListView.setAdapter(adapter);
+
+        setupFirebase();
     }
 
+    private void setupFirebase() {
+        Firebase.setAndroidContext(this);
+        Firebase firebaseRef = new Firebase(getString(R.string.firebase_url));
+
+        firebaseRef.child("room_names").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                int i = 0;
+                ArrayList<String> items = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    items.add(i, child.getValue().toString());
+                    i++;
+                }
+                ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
+                        R.layout.list_room_item, items);
+                mListView.setAdapter(adapter);
+            }
+            @Override public void onCancelled(FirebaseError error) {
+                Log.d(TAG, "onCancelled");
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
