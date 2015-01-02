@@ -129,6 +129,14 @@ public class GoogleOAuthActivity extends ActionBarActivity implements
         task.execute();
     }
 
+    protected void googleSignOut() {
+        if (mGoogleApiClient.isConnected()) {
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+            mGoogleApiClient.connect();
+        }
+    }
+
     protected void onReceivedGoogleOAuthToken(String token, String error) {
         Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + token + ", error=" + error +")");
     }

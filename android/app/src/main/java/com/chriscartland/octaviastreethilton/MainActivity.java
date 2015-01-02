@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import com.firebase.client.AuthData;
@@ -26,7 +27,8 @@ public class MainActivity extends GoogleOAuthActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private ListView mListView;
     private SignInButton mGoogleSignInButton;
-    private Firebase firebaseRef;
+    private Firebase mFirebase;
+    private ValueEventListener mRoomNamesListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +58,9 @@ public class MainActivity extends GoogleOAuthActivity {
 
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
-        firebaseRef = new Firebase(getString(R.string.firebase_url));
+        mFirebase = new Firebase(getString(R.string.firebase_url));
 
-        firebaseRef.child("room_names").addValueEventListener(new ValueEventListener() {
+        mRoomNamesListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 int i = 0;
@@ -73,10 +75,16 @@ public class MainActivity extends GoogleOAuthActivity {
             }
             @Override public void onCancelled(FirebaseError error) {
                 Log.d(TAG, "onCancelled");
-            }
-        });
 
-        firebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
+                ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
+                        R.layout.list_room_item, new ArrayList());
+                mListView.setAdapter(adapter);
+            }
+        };
+
+        mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
+
+        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
                 if (authData != null) {
@@ -86,6 +94,8 @@ public class MainActivity extends GoogleOAuthActivity {
                     // user is not logged in
                     Log.d(TAG, "User is not logged in");
                 }
+                mFirebase.child("room_names").removeEventListener(mRoomNamesListener);
+                mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
             }
         });
     }
@@ -99,6 +109,15 @@ public class MainActivity extends GoogleOAuthActivity {
                 googleSignInButtonClicked();
             }
         });
+        /* Sign out button */
+        Button signOutButton = (Button) findViewById(R.id.sign_out);
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                googleSignOut();
+                mFirebase.unauth();
+            }
+        });
     }
 
     @Override
@@ -110,12 +129,13 @@ public class MainActivity extends GoogleOAuthActivity {
     }
 
     private void authGoogleFirebase(String token) {
-        firebaseRef.authWithOAuthToken("google", token, new Firebase.AuthResultHandler() {
+        mFirebase.authWithOAuthToken("google", token, new Firebase.AuthResultHandler() {
             @Override
             public void onAuthenticated(AuthData authData) {
                 // the Google user is now authenticated with Firebase
                 Log.d(TAG, "Google user authenticated: " + authData.getUid());
             }
+
             @Override
             public void onAuthenticationError(FirebaseError firebaseError) {
                 // there was an error
