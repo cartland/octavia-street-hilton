@@ -157,7 +157,7 @@ public class MainActivity extends ActionBarActivity implements
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         ArrayAdapter drawerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.navigation_array, R.layout.list_item);
+                R.array.navigation_array, R.layout.drawer_list_item);
         mDrawerNavigation = (ListView) findViewById(R.id.drawer_navigation);
         mDrawerNavigation.setAdapter(drawerAdapter);
         mDrawerNavigation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -193,7 +193,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateTransactionsUi() {
-        ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.list_item, mTransactions);
+        TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
         mListView.setAdapter(adapter);
     }
 

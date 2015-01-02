@@ -29,4 +29,5 @@
     <dimen name="drawer_divider_padding">2dp</dimen>
     <dimen name="navigation_margin_top">24dp</dimen>
     <dimen name="drawer_margin">12dp</dimen>
+    <dimen name="transaction_item_height">64dp</dimen>
 </resources>

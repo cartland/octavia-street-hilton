@@ -22,4 +22,5 @@
     android:gravity="center_vertical|start"
     android:textSize="@dimen/list_item_text_size"
     >
+
 </TextView>
