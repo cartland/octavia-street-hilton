@@ -72,11 +72,11 @@ public class MainActivity extends ActionBarActivity implements
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         drawerLayout.setStatusBarBackgroundColor(res.getColor(R.color.color_primary_dark));
 
-        // Get default room ID.
-        mRoomId = getString(R.string.default_room_id);
-
         mIdentityImage = (ImageView) findViewById(R.id.identity_image);
         mIdentityName = (TextView) findViewById(R.id.identity_name);
+
+        // Get default room ID.
+        mRoomId = getString(R.string.default_room_id);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         mSpinnerAdapter = ArrayAdapter.createFromResource(this,
@@ -104,6 +104,14 @@ public class MainActivity extends ActionBarActivity implements
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_item, mTransactions);
         mListView = (ListView) findViewById(R.id.transaction_list);
         mListView.setAdapter(adapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
+                intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
+                startActivity(intent);
+            }
+        });
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         ArrayAdapter drawerAdapter = ArrayAdapter.createFromResource(this,
