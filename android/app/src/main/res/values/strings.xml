@@ -6,4 +6,9 @@
     <string name="firebase_url">https://torid-inferno-4435.firebaseio.com/</string>
     <string name="sign_out">Sign Out</string>
 
+    <string-array name="transactions_array">
+        <item>All</item>
+        <item>My Debts</item>
+        <item>My Purchases</item>
+    </string-array>
 </resources>

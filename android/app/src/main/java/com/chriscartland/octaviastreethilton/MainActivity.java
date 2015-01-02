@@ -10,9 +10,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -25,17 +28,22 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity implements
-        GoogleOAuthManager.GoogleOAuthManagerCallback{
+        GoogleOAuthManager.GoogleOAuthManagerCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private ListView mListView;
+    private TextView mTransactionFilterTextView;
 
     private GoogleOAuthManager mGoogleOAuthManager;
     private SignInButton mGoogleSignInButton;
 
     private Firebase mFirebase;
     private ValueEventListener mRoomNamesListener;
+
+    private ArrayAdapter<CharSequence>  mSpinnerAdapter;
+    private String mTransactionFilter;
+    private String mRoomId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +62,45 @@ public class MainActivity extends ActionBarActivity implements
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         drawerLayout.setStatusBarBackgroundColor(res.getColor(R.color.color_primary_dark));
 
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.transactions_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        Spinner spinner = (Spinner) findViewById(R.id.transaction_spinner);
+        spinner.setAdapter(mSpinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mTransactionFilter = (String) parent.getItemAtPosition(position);
+                updateTransactionFilter();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mTransactionFilter = null;
+                updateTransactionFilter();
+            }
+        });
+        updateTransactionFilter();
+
         ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_room_item, new ArrayList<>());
         mListView = (ListView) findViewById(R.id.room_list);
         mListView.setAdapter(adapter);
 
         setupFirebase();
         setupGoogleSignIn();
+    }
+
+    private void updateTransactionFilter() {
+        if (mTransactionFilter == null) {
+            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
+        }
+        if (mTransactionFilterTextView == null) {
+            mTransactionFilterTextView = (TextView) findViewById(R.id.transaction_filter_text);
+        }
+        mTransactionFilterTextView.setText(mTransactionFilter);
     }
 
     private void setupFirebase() {
