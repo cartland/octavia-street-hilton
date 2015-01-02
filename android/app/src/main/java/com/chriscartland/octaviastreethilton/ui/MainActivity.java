@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chriscartland.octaviastreethilton;
+package com.chriscartland.octaviastreethilton.ui;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -36,6 +36,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
+import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;

@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.chriscartland.octaviastreethilton;
+package com.chriscartland.octaviastreethilton.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.TextView;
+
+import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.model.Transaction;
 
 /**
  * View for viewing and editing transactions.

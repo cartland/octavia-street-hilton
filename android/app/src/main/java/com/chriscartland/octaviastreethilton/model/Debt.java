@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chriscartland.octaviastreethilton;
+package com.chriscartland.octaviastreethilton.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
