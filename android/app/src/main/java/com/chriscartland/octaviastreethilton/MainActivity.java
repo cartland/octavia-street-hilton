@@ -7,16 +7,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -25,6 +28,7 @@ import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -32,18 +36,23 @@ public class MainActivity extends ActionBarActivity implements
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private ListView mListView;
-    private TextView mTransactionFilterTextView;
-
     private GoogleOAuthManager mGoogleOAuthManager;
     private SignInButton mGoogleSignInButton;
+    private Button mSignOutButton;
 
     private Firebase mFirebase;
     private ValueEventListener mRoomNamesListener;
 
+    private DrawerLayout mDrawerLayout;
+    private ListView mListView;
+    private ListView mDrawerNavigation;
+    private ImageView mIdentityImage;
+    private TextView mIdentityName;
+
     private ArrayAdapter<CharSequence>  mSpinnerAdapter;
     private String mTransactionFilter;
     private String mRoomId;
+    private Map<String, String> mCachedUserProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +70,12 @@ public class MainActivity extends ActionBarActivity implements
         // on KitKat.
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         drawerLayout.setStatusBarBackgroundColor(res.getColor(R.color.color_primary_dark));
+
+        // Get default room ID.
+        mRoomId = getString(R.string.default_room_id);
+
+        mIdentityImage = (ImageView) findViewById(R.id.identity_image);
+        mIdentityName = (TextView) findViewById(R.id.identity_name);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         mSpinnerAdapter = ArrayAdapter.createFromResource(this,
@@ -83,24 +98,60 @@ public class MainActivity extends ActionBarActivity implements
                 updateTransactionFilter();
             }
         });
-        updateTransactionFilter();
 
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_room_item, new ArrayList<>());
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_item, new ArrayList<>());
         mListView = (ListView) findViewById(R.id.room_list);
         mListView.setAdapter(adapter);
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
+        ArrayAdapter drawerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.navigation_array, R.layout.list_item);
+        mDrawerNavigation = (ListView) findViewById(R.id.drawer_navigation);
+        mDrawerNavigation.setAdapter(drawerAdapter);
+        mDrawerNavigation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                setTitle(parent.getItemAtPosition(position).toString());
+                mDrawerLayout.closeDrawer(Gravity.START);
+            }
+        });
+        setTitle(mDrawerNavigation.getItemAtPosition(0).toString());
+
         setupFirebase();
         setupGoogleSignIn();
+        mGoogleOAuthManager.signIn();
+
+        updateTransactionFilter();
+        updateIdentityUi();
     }
 
     private void updateTransactionFilter() {
         if (mTransactionFilter == null) {
             mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
         }
-        if (mTransactionFilterTextView == null) {
-            mTransactionFilterTextView = (TextView) findViewById(R.id.transaction_filter_text);
+        // TODO(cartland): Update the transaction filter.
+    }
+
+    private void updateIdentityUi() {
+        String displayName;
+        String image;
+        if (mCachedUserProfile != null) {
+            displayName = mCachedUserProfile.get("name");
+            image = mCachedUserProfile.get("picture");
+            mGoogleSignInButton.setVisibility(View.GONE);
+            mSignOutButton.setVisibility(View.VISIBLE);
+        } else {
+            displayName = "";
+            image = null;
+            mGoogleSignInButton.setVisibility(View.VISIBLE);
+            mSignOutButton.setVisibility(View.GONE);
         }
-        mTransactionFilterTextView.setText(mTransactionFilter);
+        Log.d(TAG, "updateIdentityUi(displayName=" + displayName + ", image=" + image + ")");
+        mIdentityName.setText(displayName);
+        Glide.with(MainActivity.this)
+                .load(image)
+                .error(R.drawable.ic_launcher)
+                .into(mIdentityImage);
     }
 
     private void setupFirebase() {
@@ -113,17 +164,19 @@ public class MainActivity extends ActionBarActivity implements
                 int i = 0;
                 ArrayList<String> items = new ArrayList<>();
                 for (DataSnapshot child : snapshot.getChildren()) {
-                    items.add(i, child.getValue().toString());
-                    i++;
+                    if (mRoomId.equals(child.getKey())) {
+                        items.add(i, child.getValue().toString());
+                        i++;
+                    }
                 }
                 ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
-                        R.layout.list_room_item, items);
+                        R.layout.list_item, items);
                 mListView.setAdapter(adapter);
             }
             @Override public void onCancelled(FirebaseError error) {
                 Log.d(TAG, "onCancelled");
                 ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
-                        R.layout.list_room_item, new ArrayList());
+                        R.layout.list_item, new ArrayList());
                 mListView.setAdapter(adapter);
             }
         };
@@ -159,7 +212,7 @@ public class MainActivity extends ActionBarActivity implements
         mGoogleOAuthManager.connect();
 
         /* Load the Google Sign-In button */
-        mGoogleSignInButton = (SignInButton) findViewById(R.id.login_with_google);
+        mGoogleSignInButton = (SignInButton) findViewById(R.id.sign_in_with_google);
         mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -167,11 +220,13 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
         /* Sign out button */
-        Button signOutButton = (Button) findViewById(R.id.sign_out);
-        signOutButton.setOnClickListener(new View.OnClickListener() {
+        mSignOutButton = (Button) findViewById(R.id.sign_out);
+        mSignOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mGoogleOAuthManager.signOut();
+                mCachedUserProfile = null;
+                updateIdentityUi();
             }
         });
     }
@@ -198,6 +253,9 @@ public class MainActivity extends ActionBarActivity implements
             public void onAuthenticated(AuthData authData) {
                 // the Google user is now authenticated with Firebase
                 Log.d(TAG, "Google user authenticated: " + authData.getUid());
+                Map<String, Object> data = authData.getProviderData();
+                mCachedUserProfile = (Map<String, String>) data.get("cachedUserProfile");
+                updateIdentityUi();
             }
 
             @Override

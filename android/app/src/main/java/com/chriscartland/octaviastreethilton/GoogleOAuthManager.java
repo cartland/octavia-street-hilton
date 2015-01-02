@@ -126,6 +126,10 @@ public class GoogleOAuthManager implements
         }
     }
 
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
+    }
+
     /* A helper method to resolve the current ConnectionResult error. */
     private void resolveSignInError() {
         Log.d(TAG, "resolveSignInError()");

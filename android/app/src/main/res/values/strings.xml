@@ -4,11 +4,17 @@
     <string name="app_name">Octavia Street Hilton</string>
     <string name="action_settings">Settings</string>
     <string name="firebase_url">https://torid-inferno-4435.firebaseio.com/</string>
+    <string name="default_room_id">octavia-street-hilton</string>
     <string name="sign_out">Sign Out</string>
+    <string name="transactions">Transactions</string>
 
     <string-array name="transactions_array">
         <item>All</item>
         <item>My Debts</item>
         <item>My Purchases</item>
+    </string-array>
+
+    <string-array name="navigation_array">
+        <item>Transactions</item>
     </string-array>
 </resources>

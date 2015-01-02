@@ -4,13 +4,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    >
 
     <!-- Your normal content view -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <!-- We use a Toolbar so that our drawer can be displayed
              in front of the action bar -->
@@ -19,7 +21,8 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimary" />
+            android:background="?attr/colorPrimary"
+            />
 
         <!-- The rest of your content view -->
         <LinearLayout
@@ -29,46 +32,76 @@
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin">
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            >
             <Spinner
                 android:id="@+id/transaction_spinner"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/login_with_google"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <Button
-                android:id="@+id/sign_out"
-                android:text="@string/sign_out"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/transaction_filter_text"
-                android:layout_width="match_parent"
                 android:layout_height="@dimen/list_item_height"
-                android:gravity="center_vertical|start"
-                android:textSize="@dimen/list_item_text_size"
-                >
-            </TextView>
+                />
             <ListView
                 android:id="@+id/room_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                </ListView>
+                android:layout_height="wrap_content"
+                >
+            </ListView>
         </LinearLayout>
     </LinearLayout>
 
     <!-- Your drawer view. This can be any view, LinearLayout
          is just an example. As we have set fitSystemWindows=true
          this will be displayed under the status bar. -->
-    <ListView
+    <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/drawer"
-        android:layout_width="304dp"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="left|start"
-        android:fitsSystemWindows="true">
-    </ListView>
+        android:background="@color/drawer_background"
+        android:fitsSystemWindows="true"
+        android:dividerPadding="@dimen/drawer_divider_padding"
+        >
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/identity_height"
+            >
+            <ImageView
+                android:id="@+id/identity_image"
+                android:src="@drawable/ic_launcher"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                />
+            <TextView
+                android:id="@+id/identity_name"
+                android:text="Octavia Street Hilton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|start"
+                android:textSize="@dimen/list_item_text_size"
+                android:padding="@dimen/text_padding"
+                />
+        </LinearLayout>
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/sign_in_with_google"
+            android:layout_width="@dimen/sign_in_button_width"
+            android:layout_height="@dimen/list_item_height"
+            />
+        <Button
+            android:id="@+id/sign_out"
+            android:text="@string/sign_out"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/sign_out_button_height"
+            android:textSize="@dimen/sign_out_text_size"
+            />
+        <ListView
+            android:id="@+id/drawer_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/navigation_margin_top"
+            >
+        </ListView>
+    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>
 
