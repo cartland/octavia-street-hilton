@@ -3,26 +3,30 @@ package com.chriscartland.octaviastreethilton;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends GoogleOAuthActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private ListView mListView;
+    private SignInButton mGoogleSignInButton;
+    private Firebase firebaseRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +50,13 @@ public class MainActivity extends ActionBarActivity {
         mListView.setAdapter(adapter);
 
         setupFirebase();
+
+        setupGoogleSignIn();
     }
 
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
-        Firebase firebaseRef = new Firebase(getString(R.string.firebase_url));
+        firebaseRef = new Firebase(getString(R.string.firebase_url));
 
         firebaseRef.child("room_names").addValueEventListener(new ValueEventListener() {
             @Override
@@ -67,6 +73,53 @@ public class MainActivity extends ActionBarActivity {
             }
             @Override public void onCancelled(FirebaseError error) {
                 Log.d(TAG, "onCancelled");
+            }
+        });
+
+        firebaseRef.addAuthStateListener(new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                if (authData != null) {
+                    // user is logged in
+                    Log.d(TAG, "User is logged in, Uid: " + authData.getUid());
+                } else {
+                    // user is not logged in
+                    Log.d(TAG, "User is not logged in");
+                }
+            }
+        });
+    }
+
+    private void setupGoogleSignIn() {
+        /* Load the Google Sign-In button */
+        mGoogleSignInButton = (SignInButton) findViewById(R.id.login_with_google);
+        mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                googleSignInButtonClicked();
+            }
+        });
+    }
+
+    @Override
+    protected void onReceivedGoogleOAuthToken(String token, String error) {
+        super.onReceivedGoogleOAuthToken(token, error);
+        if (token != null) {
+            authGoogleFirebase(token);
+        }
+    }
+
+    private void authGoogleFirebase(String token) {
+        firebaseRef.authWithOAuthToken("google", token, new Firebase.AuthResultHandler() {
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                // the Google user is now authenticated with Firebase
+                Log.d(TAG, "Google user authenticated: " + authData.getUid());
+            }
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                // there was an error
+                Log.d(TAG, "Firebase authentication error with Google: " + firebaseError);
             }
         });
     }
