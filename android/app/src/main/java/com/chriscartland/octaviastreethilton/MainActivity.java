@@ -1,8 +1,10 @@
 package com.chriscartland.octaviastreethilton;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -22,11 +24,16 @@ import com.google.android.gms.common.SignInButton;
 import java.util.ArrayList;
 
 
-public class MainActivity extends GoogleOAuthActivity {
+public class MainActivity extends ActionBarActivity implements
+        GoogleOAuthManager.GoogleOAuthManagerCallback{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+
     private ListView mListView;
+
+    private GoogleOAuthManager mGoogleOAuthManager;
     private SignInButton mGoogleSignInButton;
+
     private Firebase mFirebase;
     private ValueEventListener mRoomNamesListener;
 
@@ -106,12 +113,16 @@ public class MainActivity extends GoogleOAuthActivity {
     }
 
     private void setupGoogleSignIn() {
+        mGoogleOAuthManager = new GoogleOAuthManager();
+        mGoogleOAuthManager.setActivity(this);
+        mGoogleOAuthManager.connect();
+
         /* Load the Google Sign-In button */
         mGoogleSignInButton = (SignInButton) findViewById(R.id.login_with_google);
         mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                googleSignInButtonClicked();
+                mGoogleOAuthManager.signIn();
             }
         });
         /* Sign out button */
@@ -119,18 +130,24 @@ public class MainActivity extends GoogleOAuthActivity {
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                googleSignOut();
+                mGoogleOAuthManager.signOut();
                 mFirebase.unauth();
             }
         });
     }
 
     @Override
-    protected void onReceivedGoogleOAuthToken(String token, String error) {
-        super.onReceivedGoogleOAuthToken(token, error);
+    public void onReceivedGoogleOAuthToken(String token, String error) {
+        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + token + ", error=" + error + ")");
         if (token != null) {
             authGoogleFirebase(token);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Don't forget to call GoogleOAuthManager.onActivityResult()
+        mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void authGoogleFirebase(String token) {
