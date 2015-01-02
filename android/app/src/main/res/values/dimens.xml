@@ -3,7 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="list_item_height">56dp</dimen>
+    <dimen name="list_item_height">64dp</dimen>
     <dimen name="list_item_text_size">24dp</dimen>
     <dimen name="identity_height">96dp</dimen>
     <dimen name="text_padding">8dp</dimen>

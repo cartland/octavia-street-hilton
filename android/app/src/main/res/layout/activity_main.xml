@@ -40,7 +40,7 @@
                 android:layout_height="@dimen/list_item_height"
                 />
             <ListView
-                android:id="@+id/room_list"
+                android:id="@+id/transaction_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 >
@@ -74,7 +74,6 @@
                 />
             <TextView
                 android:id="@+id/identity_name"
-                android:text="Octavia Street Hilton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical|start"

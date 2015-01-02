@@ -21,10 +21,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class MainActivity extends ActionBarActivity implements
     private Button mSignOutButton;
 
     private Firebase mFirebase;
-    private ValueEventListener mRoomNamesListener;
+    private ChildEventListener mTransactionListener;
 
     private DrawerLayout mDrawerLayout;
     private ListView mListView;
@@ -53,6 +53,7 @@ public class MainActivity extends ActionBarActivity implements
     private String mTransactionFilter;
     private String mRoomId;
     private Map<String, String> mCachedUserProfile;
+    private ArrayList<Transaction> mTransactions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +100,9 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
 
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_item, new ArrayList<>());
-        mListView = (ListView) findViewById(R.id.room_list);
+        mTransactions = new ArrayList<>();
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_item, mTransactions);
+        mListView = (ListView) findViewById(R.id.transaction_list);
         mListView.setAdapter(adapter);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
@@ -154,30 +156,45 @@ public class MainActivity extends ActionBarActivity implements
                 .into(mIdentityImage);
     }
 
+    private void updateTransactionsUi() {
+        ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
+                R.layout.list_item, mTransactions);
+        mListView.setAdapter(adapter);
+    }
+
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
         mFirebase = new Firebase(getString(R.string.firebase_url));
 
-        mRoomNamesListener = new ValueEventListener() {
+        mTransactionListener = new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                int i = 0;
-                ArrayList<String> items = new ArrayList<>();
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    if (mRoomId.equals(child.getKey())) {
-                        items.add(i, child.getValue().toString());
-                        i++;
-                    }
-                }
-                ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
-                        R.layout.list_item, items);
-                mListView.setAdapter(adapter);
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                updateTransactionsUi();
+
             }
-            @Override public void onCancelled(FirebaseError error) {
-                Log.d(TAG, "onCancelled");
-                ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
-                        R.layout.list_item, new ArrayList());
-                mListView.setAdapter(adapter);
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                updateTransactionsUi();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                updateTransactionsUi();
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                updateTransactionsUi();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Log.d(TAG, "transaction event canceled: " + firebaseError);
             }
         };
 
@@ -202,8 +219,9 @@ public class MainActivity extends ActionBarActivity implements
         // In order for our event listeners to get data based on new auth information,
         // we must remove the event listener and add it again every time we detect that
         // the auth state has changed.
-        mFirebase.child("room_names").removeEventListener(mRoomNamesListener);
-        mFirebase.child("room_names").addValueEventListener(mRoomNamesListener);
+
+        mFirebase.child("transactions").child(mRoomId).removeEventListener(mTransactionListener);
+        mFirebase.child("transactions").child(mRoomId).addChildEventListener(mTransactionListener);
     }
 
     private void setupGoogleSignIn() {
@@ -225,8 +243,6 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onClick(View view) {
                 mGoogleOAuthManager.signOut();
-                mCachedUserProfile = null;
-                updateIdentityUi();
             }
         });
     }
@@ -244,6 +260,10 @@ public class MainActivity extends ActionBarActivity implements
             authGoogleFirebase(token);
         } else {
             mFirebase.unauth();
+            mCachedUserProfile = null;
+            mTransactions = new ArrayList<>();
+            updateIdentityUi();
+            updateTransactionsUi();
         }
     }
 
