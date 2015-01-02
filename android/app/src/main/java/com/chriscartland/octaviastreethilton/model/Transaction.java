@@ -40,6 +40,30 @@ public class Transaction implements Parcelable {
     private String notes;
     private List debts;
 
+    public String getDate() {
+        return date;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public String getPurchaser() {
+        return purchaser;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public List getDebts() {
+        return debts;
+    }
+
     private Transaction(String date, String amount, String purchaser, String description,
                         String notes, List debts) {
         this.date = date;

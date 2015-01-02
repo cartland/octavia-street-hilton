@@ -17,7 +17,6 @@
 package com.chriscartland.octaviastreethilton.ui;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -79,24 +78,29 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Resources res = getResources();
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(res.getColor(R.color.color_primary));
-        setSupportActionBar(toolbar);
-
-        // Now retrieve the DrawerLayout so that we can set the status bar color.
-        // This only takes effect on Lollipop, or when using translucentStatusBar
-        // on KitKat.
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
-        drawerLayout.setStatusBarBackgroundColor(res.getColor(R.color.color_primary_dark));
-
-        mIdentityImage = (ImageView) findViewById(R.id.identity_image);
-        mIdentityName = (TextView) findViewById(R.id.identity_name);
-
         // Get default room ID.
         mRoomId = getString(R.string.default_room_id);
 
+        setupToolbar();
+        setupTransactionFilter();
+        setupTransactionViews();
+        setupDrawer();
+
+        setupFirebase();
+        setupGoogleSignIn();
+        mGoogleOAuthManager.signIn();
+
+        updateTransactionFilter();
+        updateIdentityUi();
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
+        setSupportActionBar(toolbar);
+    }
+
+    private void setupTransactionFilter() {
         // Create an ArrayAdapter using the string array and a default spinner layout
         mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.transactions_array, android.R.layout.simple_spinner_item);
@@ -118,11 +122,18 @@ public class MainActivity extends ActionBarActivity implements
                 updateTransactionFilter();
             }
         });
+    }
 
+    private void updateTransactionFilter() {
+        if (mTransactionFilter == null) {
+            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
+        }
+        // TODO(cartland): Update the transaction filter.
+    }
+
+    private void setupTransactionViews() {
         mTransactions = new ArrayList<>();
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.list_item, mTransactions);
         mListView = (ListView) findViewById(R.id.transaction_list);
-        mListView.setAdapter(adapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -131,6 +142,18 @@ public class MainActivity extends ActionBarActivity implements
                 startActivity(intent);
             }
         });
+    }
+
+    private void setupDrawer() {
+        // Now retrieve the DrawerLayout so that we can set the status bar color.
+        // This only takes effect on Lollipop, or when using translucentStatusBar
+        // on KitKat.
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
+        drawerLayout.setStatusBarBackgroundColor(getResources()
+                .getColor(R.color.color_primary_dark));
+
+        mIdentityImage = (ImageView) findViewById(R.id.identity_image);
+        mIdentityName = (TextView) findViewById(R.id.identity_name);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         ArrayAdapter drawerAdapter = ArrayAdapter.createFromResource(this,
@@ -145,20 +168,6 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
         setTitle(mDrawerNavigation.getItemAtPosition(0).toString());
-
-        setupFirebase();
-        setupGoogleSignIn();
-        mGoogleOAuthManager.signIn();
-
-        updateTransactionFilter();
-        updateIdentityUi();
-    }
-
-    private void updateTransactionFilter() {
-        if (mTransactionFilter == null) {
-            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
-        }
-        // TODO(cartland): Update the transaction filter.
     }
 
     private void updateIdentityUi() {
@@ -184,8 +193,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateTransactionsUi() {
-        ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,
-                R.layout.list_item, mTransactions);
+        ArrayAdapter adapter = new ArrayAdapter<>(this, R.layout.list_item, mTransactions);
         mListView.setAdapter(adapter);
     }
 
