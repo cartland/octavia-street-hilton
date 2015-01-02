@@ -48,6 +48,7 @@ public class GoogleOAuthManager implements
     }
 
     public void setActivity(Activity activity) {
+        Log.d(TAG, "setActivity(activity=" + activity + ")");
         mActivity = activity;
         try {
             mCallback= (GoogleOAuthManagerCallback) activity;
@@ -59,6 +60,7 @@ public class GoogleOAuthManager implements
     }
 
     public void connect() {
+        Log.d(TAG, "connect()");
         if (mActivity == null) {
             throw new IllegalStateException("GoogleOAuthManager: Must call setActivity() before connect()");
         }
@@ -74,6 +76,7 @@ public class GoogleOAuthManager implements
     }
 
     public void signIn() {
+        Log.d(TAG, "signIn()");
         mGoogleSignInClicked = true;
         if (!mGoogleApiClient.isConnecting()) {
             if (mGoogleConnectionResult != null) {
@@ -89,38 +92,53 @@ public class GoogleOAuthManager implements
     }
 
     public void signOut() {
+        Log.d(TAG, "signOut()");
+
+        mGoogleSignInClicked = false;
+        mGoogleConnectionResult = null;
+        mGoogleIntentInProgress = false;
+
         if (mGoogleApiClient.isConnected()) {
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
             mGoogleApiClient.disconnect();
             mGoogleApiClient.connect();
+            mCallback.onReceivedGoogleOAuthToken(null, "Successfully signed out.");
+        } else {
+            mCallback.onReceivedGoogleOAuthToken(null, "Already signed out.");
         }
     }
 
     // Activity must call this method in onActivityResult.
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode != GoogleOAuthManager.RC_GOOGLE_SIGN_IN) {
-            return;
-        }
+        Log.d(TAG, "onActivityResult(requestCode=" + requestCode + ", resultCode=" + resultCode +
+                ", data=" + data + ") {");
         if (resultCode != mActivity.RESULT_OK) {
             mGoogleSignInClicked = false;
         }
 
         mGoogleIntentInProgress = false;
+        mGoogleConnectionResult = null;
 
         if (!mGoogleApiClient.isConnecting()) {
+            Log.d(TAG, "!mGoogleApiClient.isConnecting()");
+            Log.d(TAG, "mGoogleApiClient.connect()");
             mGoogleApiClient.connect();
         }
     }
 
     /* A helper method to resolve the current ConnectionResult error. */
     private void resolveSignInError() {
+        Log.d(TAG, "resolveSignInError()");
         if (mGoogleConnectionResult.hasResolution()) {
+            Log.d(TAG, "mGoogleConnectionResult.hasResolution()==true");
+            Log.d(TAG, "resolution=" + mGoogleConnectionResult);
             try {
                 mGoogleIntentInProgress = true;
                 mGoogleConnectionResult.startResolutionForResult(mActivity, GoogleOAuthManager.RC_GOOGLE_SIGN_IN);
             } catch (IntentSender.SendIntentException e) {
                 // The intent was canceled before it was sent.  Return to the default
                 // state and attempt to connect to get an updated ConnectionResult.
+                Log.d(TAG, "SendIntentException");
                 mGoogleIntentInProgress = false;
                 mGoogleApiClient.connect();
             }
@@ -128,6 +146,7 @@ public class GoogleOAuthManager implements
     }
 
     private void getGoogleOAuthTokenAndSignIn() {
+        Log.d(TAG, "getGoogleOAuthTokenAndSignIn()");
         /* Get OAuth token in Background */
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
             String errorMessage = null;
@@ -138,6 +157,7 @@ public class GoogleOAuthManager implements
 
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PROFILE);
+                    Log.d(TAG, "GoogleAuthUtil.getToken scope=" + scope);
                     token = GoogleAuthUtil.getToken(mActivity, Plus.AccountApi.getAccountName(mGoogleApiClient), scope);
                 } catch (IOException transientEx) {
                     /* Network or server error */
@@ -165,8 +185,10 @@ public class GoogleOAuthManager implements
             protected void onPostExecute(String token) {
                 mGoogleSignInClicked = false;
                 if (token != null) {
+                    Log.d(TAG, "Google Auth Successful");
                     mCallback.onReceivedGoogleOAuthToken(token, null);
                 } else if (errorMessage != null) {
+                    Log.d(TAG, "Google Auth Failed: " + errorMessage);
                     mCallback.onReceivedGoogleOAuthToken(null, errorMessage);
                 }
             }
@@ -176,17 +198,19 @@ public class GoogleOAuthManager implements
 
     @Override
     public void onConnected(final Bundle bundle) {
+        Log.d(TAG, "onConnected()");
         /* Connected with Google API, use this to authenticate with Firebase */
         getGoogleOAuthTokenAndSignIn();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        // ignore
+        Log.d(TAG, "onConnectionSuspended(i=" + i + ")");
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
+        Log.d(TAG, "onConnectedionSuspended()");
         if (!mGoogleIntentInProgress) {
             /* Store the ConnectionResult so that we can use it later when the user clicks on the Google+ Sign-In button */
             mGoogleConnectionResult = result;

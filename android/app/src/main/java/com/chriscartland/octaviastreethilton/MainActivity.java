@@ -131,9 +131,14 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onClick(View view) {
                 mGoogleOAuthManager.signOut();
-                mFirebase.unauth();
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Don't forget to call GoogleOAuthManager.onActivityResult()
+        mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -141,13 +146,9 @@ public class MainActivity extends ActionBarActivity implements
         Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + token + ", error=" + error + ")");
         if (token != null) {
             authGoogleFirebase(token);
+        } else {
+            mFirebase.unauth();
         }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Don't forget to call GoogleOAuthManager.onActivityResult()
-        mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void authGoogleFirebase(String token) {
