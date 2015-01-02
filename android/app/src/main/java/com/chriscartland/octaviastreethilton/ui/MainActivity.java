@@ -282,7 +282,8 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onReceivedGoogleOAuthToken(String token, String error) {
-        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + token + ", error=" + error + ")");
+        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + token.substring(0, 10) + "..., error="
+                + error + ")");
         if (token != null) {
             authGoogleFirebase(token);
         } else {

@@ -178,7 +178,9 @@ public class GoogleOAuthManager implements
                 try {
                     String scope = String.format("oauth2:%s", Scopes.PROFILE);
                     Log.d(TAG, "GoogleAuthUtil.getToken scope=" + scope);
-                    token = GoogleAuthUtil.getToken(mActivity, Plus.AccountApi.getAccountName(mGoogleApiClient), scope);
+                    String name = Plus.AccountApi.getAccountName(mGoogleApiClient);
+                    Log.d(TAG, "getAccountName(mGoogleApiClient): " + name);
+                    token = GoogleAuthUtil.getToken(mActivity, name, scope);
                 } catch (IOException transientEx) {
                     /* Network or server error */
                     Log.e(TAG, "Error authenticating with Google: " + transientEx);
