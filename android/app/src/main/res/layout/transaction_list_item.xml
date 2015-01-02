@@ -21,6 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/transaction_item_height"
     android:textSize="@dimen/list_item_text_size"
+    android:descendantFocusability="blocksDescendants"
     >
     <TextView
         android:id="@+id/transaction_date"

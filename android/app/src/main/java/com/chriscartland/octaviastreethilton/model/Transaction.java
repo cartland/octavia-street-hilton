@@ -33,12 +33,17 @@ public class Transaction implements Parcelable {
     private static final String TAG = Transaction.class.getSimpleName();
     public static final String EXTRA = "com.chriscartland.octaviastreethilton.TRANSACTION_EXTRA";
 
+    private String id;
     private String date;
     private String amount;
     private String purchaser;
     private String description;
     private String notes;
-    private List debts;
+    private List<Debt> debts;
+
+    public String getId() {
+        return id;
+    }
 
     public String getDate() {
         return date;
@@ -60,12 +65,13 @@ public class Transaction implements Parcelable {
         return notes;
     }
 
-    public List getDebts() {
+    public List<Debt> getDebts() {
         return debts;
     }
 
-    private Transaction(String date, String amount, String purchaser, String description,
-                        String notes, List debts) {
+    private Transaction(String id, String date, String amount, String purchaser, String description,
+                        String notes, List<Debt> debts) {
+        this.id = id;
         this.date = date;
         this.amount = amount;
         this.purchaser = purchaser;
@@ -77,6 +83,7 @@ public class Transaction implements Parcelable {
     public static Transaction newFromSnapshot(DataSnapshot dataSnapshot) {
         Transaction.Builder builder = new Builder();
 
+        builder.setId(dataSnapshot.getKey());
         for (DataSnapshot child : dataSnapshot.getChildren()) {
             String key = child.getKey();
             String value = child.getValue().toString();
@@ -132,6 +139,7 @@ public class Transaction implements Parcelable {
 
     public static class Builder {
 
+        private String id;
         private String date;
         private String amount;
         private String purchaser;
@@ -142,7 +150,11 @@ public class Transaction implements Parcelable {
         public Builder() {}
 
         public Transaction build() {
-            return new Transaction(date, amount, purchaser, description, notes, debts);
+            return new Transaction(id, date, amount, purchaser, description, notes, debts);
+        }
+
+        public void setId(String id) {
+            this.id = id;
         }
 
         public void setDate(String date) {
@@ -173,7 +185,8 @@ public class Transaction implements Parcelable {
 
     @Override
     public String toString() {
-        return date + " " + amount + " " + purchaser + " " + description + " " + notes + " " + debts;
+        return id + " " + date + " " + amount + " " + purchaser + " " + description
+                + " " + notes + " " + debts;
     }
 
     // Implement Parcelable.

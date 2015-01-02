@@ -32,6 +32,14 @@ public class Debt implements Parcelable {
         this.debtor = debtor;
     }
 
+    public String getAmount() {
+        return amount;
+    }
+
+    public String getDebtor() {
+        return debtor;
+    }
+
     public static class Builder {
 
         private String amount;

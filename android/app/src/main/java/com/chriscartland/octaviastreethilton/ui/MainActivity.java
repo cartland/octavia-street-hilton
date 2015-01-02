@@ -137,6 +137,7 @@ public class MainActivity extends ActionBarActivity implements
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "Transaction clicked: " + position);
                 Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
                 intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
                 startActivity(intent);
@@ -194,7 +195,8 @@ public class MainActivity extends ActionBarActivity implements
 
     private void updateTransactionsUi() {
         TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
-        mListView.setAdapter(adapter);
+//        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.drawer_list_item, mTransactions);
+         mListView.setAdapter(adapter);
     }
 
     private void setupFirebase() {
@@ -204,26 +206,30 @@ public class MainActivity extends ActionBarActivity implements
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                Log.d(TAG, "childS: " + s);
+                mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
 
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                Log.d(TAG, "childS: " + s);
+                mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                Transaction t = Transaction.newFromSnapshot(dataSnapshot);
+                mTransactions.remove(t);
                 updateTransactionsUi();
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                mTransactions.add(Transaction.newFromSnapshot(dataSnapshot));
+                Log.d(TAG, "childS: " + s);
+                mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
 
@@ -256,7 +262,7 @@ public class MainActivity extends ActionBarActivity implements
         // the auth state has changed.
 
         mFirebase.child("transactions").child(mRoomId).removeEventListener(mTransactionListener);
-        mFirebase.child("transactions").child(mRoomId).addChildEventListener(mTransactionListener);
+        mFirebase.child("transactions").child(mRoomId).orderByKey().addChildEventListener(mTransactionListener);
     }
 
     private void setupGoogleSignIn() {

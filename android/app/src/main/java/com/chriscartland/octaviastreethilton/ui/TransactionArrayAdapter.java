@@ -28,6 +28,7 @@ import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,6 +57,13 @@ public class TransactionArrayAdapter extends ArrayAdapter<Transaction> {
         purchaser.setText(transaction.getPurchaser());
         description.setText(transaction.getDescription());
         notes.setText(transaction.getNotes());
+
+        ArrayList<String> list = new ArrayList<>();
+        for (Debt debt : transaction.getDebts()) {
+            list.add(debt.getDebtor() + ": " + debt.getAmount());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.debt_list_item, list);
+        debts.setAdapter(adapter);
         return convertView;
     }
 }
