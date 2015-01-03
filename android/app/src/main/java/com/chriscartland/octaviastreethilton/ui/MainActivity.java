@@ -31,8 +31,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.chriscartland.octaviastreethilton.FirebaseAuthManager;
-import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
+import com.chriscartland.octaviastreethilton.auth.FirebaseAuthManager;
+import com.chriscartland.octaviastreethilton.auth.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.AuthData;

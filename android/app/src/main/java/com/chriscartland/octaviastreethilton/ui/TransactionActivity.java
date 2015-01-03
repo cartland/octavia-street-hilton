@@ -22,17 +22,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.chriscartland.octaviastreethilton.FirebaseAuthManager;
-import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
+import com.chriscartland.octaviastreethilton.auth.FirebaseAuthManager;
+import com.chriscartland.octaviastreethilton.auth.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

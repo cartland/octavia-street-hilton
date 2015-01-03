@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chriscartland.octaviastreethilton;
+package com.chriscartland.octaviastreethilton.auth;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.chriscartland.octaviastreethilton.R;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;

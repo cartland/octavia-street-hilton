@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.chriscartland.octaviastreethilton;
+package com.chriscartland.octaviastreethilton.auth;
 
 import android.util.Log;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by cartland on 1/2/15.
