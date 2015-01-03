@@ -32,12 +32,12 @@ public class Transaction implements Parcelable {
 
     private static final String TAG = Transaction.class.getSimpleName();
     public static final String EXTRA = "com.chriscartland.octaviastreethilton.TRANSACTION_EXTRA";
-    private static final String KEY_DATE = "date";
-    private static final String KEY_AMOUNT = "amount";
-    private static final String KEY_PURCHASER = "purchaser";
-    private static final String KEY_DESCRIPTION = "description";
-    private static final String KEY_NOTES = "notes";
-    private static final String KEY_DEBTS = "debts";
+    public static final String KEY_DATE = "date";
+    public static final String KEY_AMOUNT = "amount";
+    public static final String KEY_PURCHASER = "purchaser";
+    public static final String KEY_DESCRIPTION = "description";
+    public static final String KEY_NOTES = "notes";
+    public static final String KEY_DEBTS = "debts";
 
     private String id;
     private String date;
@@ -46,6 +46,8 @@ public class Transaction implements Parcelable {
     private String description;
     private String notes;
     private List<Debt> debts;
+
+    public Transaction() {}
 
     public String getId() {
         return id;
@@ -102,8 +104,6 @@ public class Transaction implements Parcelable {
     public void setDebts(List<Debt> debts) {
         this.debts = debts;
     }
-
-    public Transaction() {}
 
     public static Transaction newFromSnapshot(DataSnapshot dataSnapshot) {
         Transaction transaction = new Transaction();

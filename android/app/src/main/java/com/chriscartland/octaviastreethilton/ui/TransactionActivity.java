@@ -16,11 +16,16 @@
 
 package com.chriscartland.octaviastreethilton.ui;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.Application;
@@ -32,6 +37,8 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+
+import java.util.Calendar;
 
 /**
  * View for viewing and editing transactions.
@@ -47,6 +54,7 @@ public class TransactionActivity extends ActionBarActivity implements
 
     private String mRoomId;
     private Transaction mTransaction;
+    private Firebase mTransactionReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +70,36 @@ public class TransactionActivity extends ActionBarActivity implements
 
         mTransaction = getIntent().getParcelableExtra(Transaction.EXTRA);
         mView = (TextView) findViewById(R.id.transaction);
+        mView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDatePickerDialog(v);
+            }
+        });
         createFirebase();
 
         updateUI();
+    }
+
+    public void showDatePickerDialog(View v) {
+        DatePickerFragment newFragment = new DatePickerFragment();
+        String date = mTransaction.getDate();
+        if (date.length() == 10) {
+            int year = Integer.parseInt(date.substring(0, 4));
+            int month = Integer.parseInt(date.substring(5, 7));
+            int day = Integer.parseInt(date.substring(8, 10));
+            newFragment.setDate(year, month, day);
+        }
+        newFragment.setCallback(new DatePickerFragment.DatePickedCallback() {
+            @Override
+            public void datePicked(int year, int month, int day) {
+                String date = String.format("%04d-%02d-%02d", year, month + 1, day);
+                mTransactionReference.child(Transaction.KEY_DATE).setValue(date);
+                Log.d(TAG, date);
+                Log.d(TAG, mTransactionReference.child(Transaction.KEY_DATE).toString());
+            }
+        });
+        newFragment.show(getFragmentManager(), "datePicker");
     }
 
     @Override
@@ -117,6 +152,10 @@ public class TransactionActivity extends ActionBarActivity implements
     }
 
     private void createFirebase() {
+        String id = mTransaction.getId();
+        mTransactionReference = mFirebase.child("transactions").child(mRoomId).child(id);
+        mTransactionReference.child("date").setValue("12341289734");    
+
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -127,16 +166,18 @@ public class TransactionActivity extends ActionBarActivity implements
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "onChildChanged");
+                mTransaction.updateFieldInSnapshot(dataSnapshot);
+                updateUI();
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d(TAG, "onChildRemoved");
+                Log.d(TAG, "onChildRemoved: " + dataSnapshot.getKey());
             }
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildMoved");
+                Log.d(TAG, "onChildMoved: " + dataSnapshot.getKey());
             }
 
             @Override
@@ -162,10 +203,57 @@ public class TransactionActivity extends ActionBarActivity implements
         // we must remove the event listener and add it again every time we detect that
         // the auth state has changed.
 
-        String id = mTransaction.getId();
-        Log.d(TAG, "id: " + id);
-        Firebase tRef = mFirebase.child("transactions").child(mRoomId).child(id);
-        tRef.removeEventListener(mTransactionListener);
-        tRef.addChildEventListener(mTransactionListener);
+        mTransactionReference.removeEventListener(mTransactionListener);
+        mTransactionReference.addChildEventListener(mTransactionListener);
+    }
+
+    public static class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        private int mYear = -1;
+        private int mMonth = -1;
+        private int mDay = -1;
+        private DatePickedCallback mCallback;
+
+        public void setDate(int year, int month, int day) {
+            mYear = year;
+            mMonth = month;
+            mDay = day;
+        }
+
+        public void setCallback(DatePickedCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            Calendar c = Calendar.getInstance();
+            int year = mYear;
+            int month = mMonth - 1;
+            int day = mDay;
+            if (year < 0) {
+                year = c.get(Calendar.YEAR);
+            }
+            if (month < 0) {
+                month = c.get(Calendar.MONTH);
+            }
+            if (day < 0) {
+                day = c.get(Calendar.DAY_OF_MONTH);
+            }
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            if (mCallback != null) {
+                mCallback.datePicked(year, month, day);
+            }
+        }
+
+        public interface DatePickedCallback {
+            void datePicked(int year, int month, int day);
+        }
     }
 }
