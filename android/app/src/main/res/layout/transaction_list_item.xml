@@ -31,6 +31,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        style="@style/TextColor"
         />
     <TextView
         android:id="@+id/transaction_amount"
@@ -40,6 +41,7 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/transaction_date"
         android:layout_toEndOf="@id/transaction_date"
+        style="@style/TextColor"
         />
     <TextView
         android:id="@+id/transaction_purchaser"
@@ -49,6 +51,7 @@
         android:layout_below="@id/transaction_date"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        style="@style/TextColor"
         />
     <TextView
         android:id="@+id/transaction_description"
@@ -62,6 +65,7 @@
         android:layout_toEndOf="@id/transaction_amount"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
+        style="@style/TextColor"
         />
     <TextView
         android:id="@+id/transaction_debts"
@@ -75,11 +79,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignLeft="@id/transaction_description"
         android:layout_alignStart="@id/transaction_description"
-        />
-    <TextView
-        android:id="@+id/transaction_notes"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:visibility="gone"
+        style="@style/TextColor"
         />
 </RelativeLayout>

@@ -18,6 +18,7 @@ package com.chriscartland.octaviastreethilton.ui;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,27 +37,49 @@ import java.util.List;
  */
 public class TransactionArrayAdapter extends ArrayAdapter<Transaction> {
 
+    private static final String TAG = TransactionArrayAdapter.class.getSimpleName();
+
+    HashMap<Integer, Boolean> mSelections = new HashMap<>();
+
     public TransactionArrayAdapter(Context context, List<Transaction>transactions) {
         super(context, 0, transactions);
+    }
+
+    public void toggleSelected(View selectedItemView, int position) {
+        Log.d(TAG, "toggleSelected: " + position);
+
+        if (selectedItemView != null) {
+            if (!mSelections.containsKey(position)) {
+                mSelections.put(position, false);
+            }
+            if (mSelections.get(position)) {
+                mSelections.put(position, false);
+                selectedItemView.setBackgroundColor(getContext().getResources()
+                        .getColor(R.color.color_background));
+            } else {
+                mSelections.put(position, true);
+                selectedItemView.setBackgroundColor(getContext().getResources()
+                        .getColor(R.color.color_background_selected));
+            }
+        }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Transaction transaction = getItem(position);
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.transaction_list_item, parent, false);
+            convertView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.transaction_list_item, parent, false);
         }
         TextView date = (TextView) convertView.findViewById(R.id.transaction_date);
         TextView amount = (TextView) convertView.findViewById(R.id.transaction_amount);
         TextView purchaser = (TextView) convertView.findViewById(R.id.transaction_purchaser);
         TextView description = (TextView) convertView.findViewById(R.id.transaction_description);
-        TextView notes = (TextView) convertView.findViewById(R.id.transaction_notes);
         TextView debts = (TextView) convertView.findViewById(R.id.transaction_debts);
         date.setText(transaction.getDate());
         amount.setText(transaction.getAmount());
         purchaser.setText(transaction.getPurchaser());
         description.setText(transaction.getDescription());
-        notes.setText(transaction.getNotes());
 
         StringBuilder s = new StringBuilder();
         for (Debt debt : transaction.getDebts()) {
