@@ -19,15 +19,22 @@ package com.chriscartland.octaviastreethilton.ui;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.TextView;
 
+import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 
 /**
  * View for viewing and editing transactions.
  */
-public class TransactionActivity extends ActionBarActivity {
+public class TransactionActivity extends ActionBarActivity implements
+        GoogleOAuthManager.GoogleOAuthManagerCallback {
+
+    private static final String TAG = TransactionActivity.class.getSimpleName();
+
+    private GoogleOAuthManager mGoogleOAuthManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +46,29 @@ public class TransactionActivity extends ActionBarActivity {
         Transaction transaction = getIntent().getParcelableExtra(Transaction.EXTRA);
         TextView view = (TextView) findViewById(R.id.transaction);
         view.setText(transaction.toString());
+
+        setupGoogleSignIn();
     }
 
     private void setupToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
         setSupportActionBar(toolbar);
+    }
+
+    private void setupGoogleSignIn() {
+        mGoogleOAuthManager = new GoogleOAuthManager();
+        mGoogleOAuthManager.setActivity(this);
+        mGoogleOAuthManager.start();
+    }
+
+    @Override
+    public void onReceivedGoogleOAuthToken(String token, String error) {
+        String logToken = token;
+        if (logToken != null) {
+            logToken = logToken.substring(0, 10);
+        }
+        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + logToken + "..., error="
+                + error + ")");
     }
 }

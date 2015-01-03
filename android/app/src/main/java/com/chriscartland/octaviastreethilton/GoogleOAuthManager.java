@@ -22,16 +22,23 @@ import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class GoogleOAuthManager implements
         GoogleApiClient.ConnectionCallbacks,
@@ -59,6 +66,12 @@ public class GoogleOAuthManager implements
      * sign-in. */
     private ConnectionResult mGoogleConnectionResult;
 
+    /* Drawer widgets. */
+    private SignInButton mGoogleSignInButton;
+    private Button mSignOutButton;
+    private ImageView mIdentityImage;
+    private TextView mIdentityName;
+
     public interface GoogleOAuthManagerCallback {
         void onReceivedGoogleOAuthToken(String token, String error);
     }
@@ -75,11 +88,36 @@ public class GoogleOAuthManager implements
         }
     }
 
-    public void connect() {
-        Log.d(TAG, "connect()");
+    public void start() {
+        Log.d(TAG, "start()");
         if (mActivity == null) {
-            throw new IllegalStateException("GoogleOAuthManager: Must call setActivity() before connect()");
+            throw new IllegalStateException("GoogleOAuthManager: Must setActivity() before start()");
         }
+
+        mIdentityImage = (ImageView) mActivity.findViewById(R.id.identity_image);
+        mIdentityName = (TextView) mActivity.findViewById(R.id.identity_name);
+
+        /* Load the Google Sign-In button */
+        mGoogleSignInButton = (SignInButton) mActivity.findViewById(R.id.sign_in_with_google);
+        mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleOAuthManager.this.signIn();
+            }
+        });
+        /* Sign out button */
+        mSignOutButton = (Button) mActivity.findViewById(R.id.sign_out);
+        mSignOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GoogleOAuthManager.this.signOut();
+            }
+        });
+        connect();
+    }
+
+    private void connect() {
+        Log.d(TAG, "connect()");
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(mActivity)
                     .addConnectionCallbacks(this)
@@ -140,6 +178,28 @@ public class GoogleOAuthManager implements
             Log.d(TAG, "mGoogleApiClient.connect()");
             mGoogleApiClient.connect();
         }
+    }
+
+    public void updateIdentityUi(Map<String, String> userProfile) {
+        String displayName;
+        String image;
+        if (userProfile != null) {
+            displayName = userProfile.get("name");
+            image = userProfile.get("picture");
+            mGoogleSignInButton.setVisibility(View.GONE);
+            mSignOutButton.setVisibility(View.VISIBLE);
+        } else {
+            displayName = "";
+            image = null;
+            mGoogleSignInButton.setVisibility(View.VISIBLE);
+            mSignOutButton.setVisibility(View.GONE);
+        }
+        Log.d(TAG, "updateIdentityUi(displayName=" + displayName + ", image=" + image + ")");
+        mIdentityName.setText(displayName);
+        Glide.with(mActivity)
+                .load(image)
+                .error(R.drawable.ic_launcher)
+                .into(mIdentityImage);
     }
 
     public GoogleApiClient getGoogleApiClient() {

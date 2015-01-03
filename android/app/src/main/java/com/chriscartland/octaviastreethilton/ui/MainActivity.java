@@ -28,13 +28,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
@@ -43,7 +39,6 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -55,8 +50,6 @@ public class MainActivity extends ActionBarActivity implements
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private GoogleOAuthManager mGoogleOAuthManager;
-    private SignInButton mGoogleSignInButton;
-    private Button mSignOutButton;
 
     private Firebase mFirebase;
     private ChildEventListener mTransactionListener;
@@ -64,13 +57,10 @@ public class MainActivity extends ActionBarActivity implements
     private DrawerLayout mDrawerLayout;
     private ListView mListView;
     private ListView mDrawerNavigation;
-    private ImageView mIdentityImage;
-    private TextView mIdentityName;
 
     private ArrayAdapter<CharSequence>  mSpinnerAdapter;
     private String mTransactionFilter;
     private String mRoomId;
-    private Map<String, String> mCachedUserProfile;
     private ArrayList<Transaction> mTransactions;
 
     @Override
@@ -88,10 +78,10 @@ public class MainActivity extends ActionBarActivity implements
 
         setupFirebase();
         setupGoogleSignIn();
+        mGoogleOAuthManager.updateIdentityUi(null);
         mGoogleOAuthManager.signIn();
 
         updateTransactionFilter();
-        updateIdentityUi();
     }
 
     private void setupToolbar() {
@@ -153,9 +143,6 @@ public class MainActivity extends ActionBarActivity implements
         drawerLayout.setStatusBarBackgroundColor(getResources()
                 .getColor(R.color.color_primary_dark));
 
-        mIdentityImage = (ImageView) findViewById(R.id.identity_image);
-        mIdentityName = (TextView) findViewById(R.id.identity_name);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_main);
         ArrayAdapter drawerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.navigation_array, R.layout.drawer_list_item);
@@ -169,28 +156,6 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
         setTitle(mDrawerNavigation.getItemAtPosition(0).toString());
-    }
-
-    private void updateIdentityUi() {
-        String displayName;
-        String image;
-        if (mCachedUserProfile != null) {
-            displayName = mCachedUserProfile.get("name");
-            image = mCachedUserProfile.get("picture");
-            mGoogleSignInButton.setVisibility(View.GONE);
-            mSignOutButton.setVisibility(View.VISIBLE);
-        } else {
-            displayName = "";
-            image = null;
-            mGoogleSignInButton.setVisibility(View.VISIBLE);
-            mSignOutButton.setVisibility(View.GONE);
-        }
-        Log.d(TAG, "updateIdentityUi(displayName=" + displayName + ", image=" + image + ")");
-        mIdentityName.setText(displayName);
-        Glide.with(MainActivity.this)
-                .load(image)
-                .error(R.drawable.ic_launcher)
-                .into(mIdentityImage);
     }
 
     private void updateTransactionsUi() {
@@ -268,24 +233,7 @@ public class MainActivity extends ActionBarActivity implements
     private void setupGoogleSignIn() {
         mGoogleOAuthManager = new GoogleOAuthManager();
         mGoogleOAuthManager.setActivity(this);
-        mGoogleOAuthManager.connect();
-
-        /* Load the Google Sign-In button */
-        mGoogleSignInButton = (SignInButton) findViewById(R.id.sign_in_with_google);
-        mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mGoogleOAuthManager.signIn();
-            }
-        });
-        /* Sign out button */
-        mSignOutButton = (Button) findViewById(R.id.sign_out);
-        mSignOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mGoogleOAuthManager.signOut();
-            }
-        });
+        mGoogleOAuthManager.start();
     }
 
     @Override
@@ -306,9 +254,8 @@ public class MainActivity extends ActionBarActivity implements
             authGoogleFirebase(token);
         } else {
             mFirebase.unauth();
-            mCachedUserProfile = null;
             mTransactions = new ArrayList<>();
-            updateIdentityUi();
+            mGoogleOAuthManager.updateIdentityUi(null);
             updateTransactionsUi();
         }
     }
@@ -320,8 +267,8 @@ public class MainActivity extends ActionBarActivity implements
                 // the Google user is now authenticated with Firebase
                 Log.d(TAG, "Google user authenticated: " + authData.getUid());
                 Map<String, Object> data = authData.getProviderData();
-                mCachedUserProfile = (Map<String, String>) data.get("cachedUserProfile");
-                updateIdentityUi();
+                Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
+                mGoogleOAuthManager.updateIdentityUi(userProfile);
             }
 
             @Override
