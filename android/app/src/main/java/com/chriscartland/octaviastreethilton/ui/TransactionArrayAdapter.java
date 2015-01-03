@@ -17,18 +17,17 @@
 package com.chriscartland.octaviastreethilton.ui;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,10 +59,12 @@ public class TransactionArrayAdapter extends ArrayAdapter<Transaction> {
 
         StringBuilder s = new StringBuilder();
         for (Debt debt : transaction.getDebts()) {
-            s.append(debt.getDebtor());
-            s.append(": ");
-            s.append(debt.getAmount());
-            s.append("  ");
+            if (!TextUtils.isEmpty(debt.getAmount())) {
+                s.append(debt.getDebtor());
+                s.append(": ");
+                s.append(debt.getAmount());
+                s.append("  ");
+            }
         }
         debts.setText(s.toString());
         return convertView;

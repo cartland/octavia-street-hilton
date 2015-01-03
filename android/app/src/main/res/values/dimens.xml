@@ -33,9 +33,9 @@
     <dimen name="debt_item_text_size">12dp</dimen>
     <dimen name="transaction_date_text_size">12sp</dimen>
     <dimen name="transaction_date_width">90dp</dimen>
-    <dimen name="transaction_amount_width">40dp</dimen>
+    <dimen name="transaction_amount_width">60dp</dimen>
     <dimen name="transaction_amount_text_size">16sp</dimen>
-    <dimen name="transaction_purchaser_width">70dp</dimen>
+    <dimen name="transaction_purchaser_width">90dp</dimen>
     <dimen name="transaction_debts_text_size">12sp</dimen>
     <dimen name="transaction_description_text_size">12sp</dimen>
     <dimen name="transaction_purchaser_text_size">16sp</dimen>
