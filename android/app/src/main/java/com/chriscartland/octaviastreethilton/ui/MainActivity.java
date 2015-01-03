@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.chriscartland.octaviastreethilton.FirebaseAuthManager;
 import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
@@ -45,11 +46,12 @@ import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity implements
-        GoogleOAuthManager.GoogleOAuthManagerCallback {
+        FirebaseAuthManager.FirebaseAuthCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private GoogleOAuthManager mGoogleOAuthManager;
+    private FirebaseAuthManager mFirebaseAuthManager;
 
     private Firebase mFirebase;
     private ChildEventListener mTransactionListener;
@@ -71,26 +73,35 @@ public class MainActivity extends ActionBarActivity implements
         // Get default room ID.
         mRoomId = getString(R.string.default_room_id);
 
-        setupToolbar();
-        setupTransactionFilter();
-        setupTransactionViews();
-        setupDrawer();
+        createToolbar();
+        createTransactionFilter();
+        createTransactionViews();
+        createDrawer();
 
-        setupFirebase();
-        setupGoogleSignIn();
-        mGoogleOAuthManager.updateIdentityUi(null);
+        createFirebase();
+        createAuth();
+        startFirebase();
+        startAuth();
+
         mGoogleOAuthManager.signIn();
 
         updateTransactionFilter();
+        updateAuthDependentListeners();
     }
 
-    private void setupToolbar() {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateAuthDependentListeners();
+    }
+
+    private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
         setSupportActionBar(toolbar);
     }
 
-    private void setupTransactionFilter() {
+    private void createTransactionFilter() {
         // Create an ArrayAdapter using the string array and a default spinner layout
         mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.transactions_array, android.R.layout.simple_spinner_item);
@@ -114,14 +125,7 @@ public class MainActivity extends ActionBarActivity implements
         });
     }
 
-    private void updateTransactionFilter() {
-        if (mTransactionFilter == null) {
-            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
-        }
-        // TODO(cartland): Update the transaction filter.
-    }
-
-    private void setupTransactionViews() {
+    private void createTransactionViews() {
         mTransactions = new ArrayList<>();
         mListView = (ListView) findViewById(R.id.transaction_list);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -135,7 +139,7 @@ public class MainActivity extends ActionBarActivity implements
         });
     }
 
-    private void setupDrawer() {
+    private void createDrawer() {
         // Now retrieve the DrawerLayout so that we can set the status bar color.
         // This only takes effect on Lollipop, or when using translucentStatusBar
         // on KitKat.
@@ -158,13 +162,7 @@ public class MainActivity extends ActionBarActivity implements
         setTitle(mDrawerNavigation.getItemAtPosition(0).toString());
     }
 
-    private void updateTransactionsUi() {
-        TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
-//        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.drawer_list_item, mTransactions);
-         mListView.setAdapter(adapter);
-    }
-
-    private void setupFirebase() {
+    private void createFirebase() {
         Firebase.setAndroidContext(this);
         mFirebase = new Firebase(getString(R.string.firebase_url));
 
@@ -203,21 +201,39 @@ public class MainActivity extends ActionBarActivity implements
                 Log.d(TAG, "transaction event canceled: " + firebaseError);
             }
         };
+    }
 
-        mFirebase.addAuthStateListener(new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-                if (authData != null) {
-                    // user is logged in
-                    Log.d(TAG, "User is logged in, Uid: " + authData.getUid());
-                } else {
-                    // user is not logged in
-                    Log.d(TAG, "User is not logged in");
-                }
-                updateAuthDependentListeners();
-            }
-        });
-        updateAuthDependentListeners();
+    private void createAuth() {
+        if (mFirebaseAuthManager == null) {
+            mFirebaseAuthManager = new FirebaseAuthManager(mFirebase);
+        }
+
+        if (mGoogleOAuthManager == null) {
+            mGoogleOAuthManager = new GoogleOAuthManager();
+        }
+    }
+
+    private void startFirebase() {
+        Firebase.setAndroidContext(this);
+    }
+
+    private void startAuth() {
+        mFirebaseAuthManager.setCallback(this);
+        mGoogleOAuthManager.setActivity(this);
+        mGoogleOAuthManager.setCallback(mFirebaseAuthManager);
+        mGoogleOAuthManager.start();
+    }
+
+    private void updateTransactionFilter() {
+        if (mTransactionFilter == null) {
+            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
+        }
+        // TODO(cartland): Update the transaction filter.
+    }
+
+    private void updateTransactionsUi() {
+        TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
+        mListView.setAdapter(adapter);
     }
 
     private void updateAuthDependentListeners() {
@@ -230,53 +246,25 @@ public class MainActivity extends ActionBarActivity implements
         mFirebase.child("transactions").child(mRoomId).orderByKey().addChildEventListener(mTransactionListener);
     }
 
-    private void setupGoogleSignIn() {
-        mGoogleOAuthManager = new GoogleOAuthManager();
-        mGoogleOAuthManager.setActivity(this);
-        mGoogleOAuthManager.start();
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Don't forget to call GoogleOAuthManager.onActivityResult()
         mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    // Implement interface.
     @Override
-    public void onReceivedGoogleOAuthToken(String token, String error) {
-        String logToken = token;
-        if (logToken != null) {
-            logToken = logToken.substring(0, 10);
-        }
-        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + logToken + "..., error="
-                + error + ")");
-        if (token != null) {
-            authGoogleFirebase(token);
-        } else {
-            mFirebase.unauth();
+    public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
+        if (error != null) {
             mTransactions = new ArrayList<>();
             mGoogleOAuthManager.updateIdentityUi(null);
-            updateTransactionsUi();
+        } else {
+            Map<String, Object> data = authData.getProviderData();
+            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
+            mGoogleOAuthManager.updateIdentityUi(userProfile);
         }
-    }
-
-    private void authGoogleFirebase(String token) {
-        mFirebase.authWithOAuthToken("google", token, new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                // the Google user is now authenticated with Firebase
-                Log.d(TAG, "Google user authenticated: " + authData.getUid());
-                Map<String, Object> data = authData.getProviderData();
-                Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
-                mGoogleOAuthManager.updateIdentityUi(userProfile);
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                // there was an error
-                Log.d(TAG, "Firebase authentication error with Google: " + firebaseError);
-            }
-        });
+        updateAuthDependentListeners();
+        updateTransactionsUi();
     }
 
     @Override

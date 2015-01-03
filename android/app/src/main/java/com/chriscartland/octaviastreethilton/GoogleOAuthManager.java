@@ -79,13 +79,10 @@ public class GoogleOAuthManager implements
     public void setActivity(Activity activity) {
         Log.d(TAG, "setActivity(activity=" + activity + ")");
         mActivity = activity;
-        try {
-            mCallback= (GoogleOAuthManagerCallback) activity;
-        } catch (ClassCastException e) {
-            Log.e(TAG, "Activity must implement required interface: " +
-                    GoogleOAuthManagerCallback.class.getSimpleName());
-            throw e;
-        }
+    }
+
+    public void setCallback(GoogleOAuthManagerCallback callback) {
+        mCallback = callback;
     }
 
     public void start() {
@@ -93,26 +90,37 @@ public class GoogleOAuthManager implements
         if (mActivity == null) {
             throw new IllegalStateException("GoogleOAuthManager: Must setActivity() before start()");
         }
+        if (mCallback == null) {
+            throw new IllegalStateException("GoogleOAuthManager: Must setCallback() before start()");
+        }
 
-        mIdentityImage = (ImageView) mActivity.findViewById(R.id.identity_image);
-        mIdentityName = (TextView) mActivity.findViewById(R.id.identity_name);
+        if (mIdentityImage == null) {
+            mIdentityImage = (ImageView) mActivity.findViewById(R.id.identity_image);
+        }
+        if (mIdentityName == null) {
+            mIdentityName = (TextView) mActivity.findViewById(R.id.identity_name);
+        }
 
         /* Load the Google Sign-In button */
-        mGoogleSignInButton = (SignInButton) mActivity.findViewById(R.id.sign_in_with_google);
-        mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GoogleOAuthManager.this.signIn();
-            }
-        });
+        if (mGoogleSignInButton == null) {
+            mGoogleSignInButton = (SignInButton) mActivity.findViewById(R.id.sign_in_with_google);
+            mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    GoogleOAuthManager.this.signIn();
+                }
+            });
+        }
         /* Sign out button */
-        mSignOutButton = (Button) mActivity.findViewById(R.id.sign_out);
-        mSignOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                GoogleOAuthManager.this.signOut();
-            }
-        });
+        if (mSignOutButton == null) {
+            mSignOutButton = (Button) mActivity.findViewById(R.id.sign_out);
+            mSignOutButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    GoogleOAuthManager.this.signOut();
+                }
+            });
+        }
         connect();
     }
 

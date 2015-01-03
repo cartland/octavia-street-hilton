@@ -22,19 +22,30 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.chriscartland.octaviastreethilton.FirebaseAuthManager;
 import com.chriscartland.octaviastreethilton.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Transaction;
+import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * View for viewing and editing transactions.
  */
 public class TransactionActivity extends ActionBarActivity implements
-        GoogleOAuthManager.GoogleOAuthManagerCallback {
+        GoogleOAuthManager.GoogleOAuthManagerCallback, FirebaseAuthManager.FirebaseAuthCallback {
 
     private static final String TAG = TransactionActivity.class.getSimpleName();
 
+    private Firebase mFirebase;
     private GoogleOAuthManager mGoogleOAuthManager;
+    private FirebaseAuthManager mFirebaseAuthManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +58,8 @@ public class TransactionActivity extends ActionBarActivity implements
         TextView view = (TextView) findViewById(R.id.transaction);
         view.setText(transaction.toString());
 
-        setupGoogleSignIn();
+        setupFirebase();
+        setupAuth();
     }
 
     private void setupToolbar() {
@@ -56,9 +68,18 @@ public class TransactionActivity extends ActionBarActivity implements
         setSupportActionBar(toolbar);
     }
 
-    private void setupGoogleSignIn() {
+    private void setupFirebase() {
+        Firebase.setAndroidContext(this);
+        mFirebase = new Firebase(getString(R.string.firebase_url));
+    }
+
+    private void setupAuth() {
+        mFirebaseAuthManager = new FirebaseAuthManager(mFirebase);
+        mFirebaseAuthManager.setCallback(this);
+
         mGoogleOAuthManager = new GoogleOAuthManager();
         mGoogleOAuthManager.setActivity(this);
+        mGoogleOAuthManager.setCallback(mFirebaseAuthManager);
         mGoogleOAuthManager.start();
     }
 
@@ -71,4 +92,17 @@ public class TransactionActivity extends ActionBarActivity implements
         Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + logToken + "..., error="
                 + error + ")");
     }
+
+    // Implement interface.
+    @Override
+    public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
+        if (error != null) {
+            mGoogleOAuthManager.updateIdentityUi(null);
+        } else {
+            Map<String, Object> data = authData.getProviderData();
+            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
+            mGoogleOAuthManager.updateIdentityUi(userProfile);
+        }
+    }
+
 }
