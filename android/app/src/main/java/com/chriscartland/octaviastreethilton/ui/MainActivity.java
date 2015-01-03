@@ -112,7 +112,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        AuthManager.getInstance(this).onActivityResult(requestCode, resultCode, data);
+        AuthManager.onActivityResult(this, requestCode, resultCode, data);
     }
 
     /* AuthManager.AuthCallback implementation. */

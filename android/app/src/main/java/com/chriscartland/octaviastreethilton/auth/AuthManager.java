@@ -37,7 +37,20 @@ import com.google.android.gms.common.SignInButton;
 import java.util.Map;
 
 /**
- * Created by cartland on 1/2/15.
+ * AuthManager is a singleton class that handles authentication using Google Sign-In and Firebase.
+ * Each activity that needs to be auth-aware should call the static methods corresponding to
+ * the Android Activity lifecycle.
+ *      AuthManager.onCreate(Activity)
+ *      AuthManager.onStart(Activity)
+ *      AuthManager.onResume(Activity)
+ *      AuthManager.onPause(Activity)
+ *      AuthManager.onStop(Activity)
+ *      AuthManager.onDestroy(Activity)
+ *
+ * Each activity must pass activity results to AuthManager.
+ *      AuthManager.onActivityResult(Activity, int requestCode, int resultCode, Intent data)
+ *
+ * Finally, each Activity must implement AuthManager.AuthCallback
  */
 public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
 
@@ -54,6 +67,13 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
     private GoogleOAuthManager mGoogleOAuthManager;
 
     public interface AuthCallback {
+        /**
+         * Called when Firebase and Google have authenticated the user, or on failure.
+         * Called when auth data exists on update, onResume(), and when the callback is set.
+         *
+         * @param auth Basic user information and auth information from Firebase and Google.
+         * @param error Null if the user is signed in.
+         */
         void onAuthResult(Auth auth, Error error);
     }
 
@@ -61,7 +81,9 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         void updateAuthUserInterface(Activity activity, Auth auth);
     }
 
-    // Singleton.
+
+    /* Singleton. */
+
     private static AuthManager INSTANCE;
 
     public static AuthManager getInstance(Activity activity) {
@@ -71,19 +93,21 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         return INSTANCE;
     }
 
-    // Initialize null data.
-    private AuthManager() {
-        mAuth = null;
-        mError = null;
-        mAuthCallback = null;
-        mUserInterface = null;
-    }
+    private AuthManager() {}
 
-    public void setActivity(Activity activity) {
+
+    /**
+     * Called whenever activity lifecycle is taking focus. This allows a sign-in flow to start
+     * in one activity and receive the final AuthCallback in a different activity.
+     *
+     * @param activity
+     */
+    private void setActivity(Activity activity) {
         this.mActivity = activity;
     }
 
-    /* Lifecycle methods */
+
+    /* Lifecycle methods. */
 
     public static void onCreate(final Activity activity) {
         getInstance(activity).setActivity(activity);
@@ -121,9 +145,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         getInstance(activity).onStart();
     }
 
-    private void onStart() {
-
-    }
+    private void onStart() {}
 
     public static void onResume(Activity activity) {
         getInstance(activity).setActivity(activity);
@@ -138,9 +160,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
             Log.e(TAG, "Activity must implement AuthCallback interface");
             throw e;
         }
-        setAuthCallback(callback);
-
-        maybeUpdateAuthCallback();
+        setAuthCallback(callback); // Calls AuthCallback.
         updateUserInterfaceCallback();
 
         mFirebaseAuthManager.setCallback(this);
@@ -153,55 +173,83 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         getInstance(activity).onPause();
     }
 
-    private void onPause() {
-    }
+    private void onPause() {}
 
     public static void onStop(Activity activity) {
         getInstance(activity).onStop();
     }
 
-    private void onStop() {
-    }
+    private void onStop() {}
 
     public static void onDestroy(Activity activity) {
         getInstance(activity).onDestroy();
     }
 
-    private void onDestroy() {
+    private void onDestroy() {}
+
+    public static void onActivityResult(Activity activity, int requestCode, int resultCode,
+                                        Intent data) {
+        getInstance(activity).onActivityResult(requestCode, resultCode, data);
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    private void onActivityResult(int requestCode, int resultCode, Intent data) {
         mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
     }
 
+
     /* Public methods */
 
+    /**
+     * Programmatically trigger sign-in.
+     */
     public void signIn() {
         mGoogleOAuthManager.signIn();
     }
 
+    /**
+     * Programmatically trigger sign-out.
+     */
     public void signOut() {
         mGoogleOAuthManager.signOut();
     }
 
-    public void setAuthCallback(AuthCallback callback) {
+    /**
+     * By default, this is an Activity.
+     *
+     * @param callback Receives updates when Auth information changes.
+     */
+    private void setAuthCallback(AuthCallback callback) {
         mAuthCallback = callback;
         maybeUpdateAuthCallback();
     }
 
-    public void setUserInterface(AuthUserInterface callback) {
+    /**
+     * This user interface shows the sign-in information.
+     *
+     * @param callback Receives callback when UI should be updated.
+     */
+    private void setUserInterface(AuthUserInterface callback) {
         mUserInterface = callback;
         updateUserInterfaceCallback();
     }
 
+    /**
+     * @param mGoogleOAuthManager Handles Google Sign-In.
+     */
     public void setGoogleOAuthManager(GoogleOAuthManager mGoogleOAuthManager) {
         this.mGoogleOAuthManager = mGoogleOAuthManager;
     }
 
+    /**
+     * @param mFirebaseAuthManager Handles Firebase auth using Google Sign-In.
+     */
     public void setFirebaseAuthManager(FirebaseAuthManager mFirebaseAuthManager) {
         this.mFirebaseAuthManager = mFirebaseAuthManager;
     }
 
+    /**
+     * Calls AuthCallback if there is either data or an error.
+     */
     private void maybeUpdateAuthCallback() {
         if (mAuthCallback != null) {
             if (mAuth != null || mError != null) {
@@ -212,6 +260,9 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         }
     }
 
+    /**
+     * Calls callback to update activity UI with Auth information.
+     */
     private void updateUserInterfaceCallback() {
         Log.d(TAG, "updateUserInterfaceCallback()");
         if (mUserInterface != null) {
@@ -221,7 +272,15 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         }
     }
 
+
     /* FirebaseAuthManager interface. */
+
+    /**
+     * Update mAuth and mError with Firebase AuthData, then trigger callbacks.
+     *
+     * @param authData Data from Firebase authentication.
+     * @param error
+     */
     @Override
     public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
         if (error != null) {
