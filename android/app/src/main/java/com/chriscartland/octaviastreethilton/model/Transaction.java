@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * A transaction in the database.
  */
-public class Transaction implements Parcelable {
+public class Transaction implements Parcelable, Comparable<Transaction> {
 
     private static final String TAG = Transaction.class.getSimpleName();
     public static final String EXTRA = "com.chriscartland.octaviastreethilton.TRANSACTION_EXTRA";
@@ -208,4 +208,54 @@ public class Transaction implements Parcelable {
                     return new Transaction[size];
                 }
             };
+
+
+    // Implements Comparable and consistent with equals.
+
+    @Override
+    public int compareTo(Transaction another) {
+        if (this.equals(another)) {
+            // Two Transaction objects with the same ID are always "equal" even if the other
+            // values are different.
+            return 0;
+        }
+        if (another == null) {
+            return 1;
+        }
+        int result = date.compareTo(another.date);
+        if (result != 0) {
+            return result;
+        }
+        result = amount.compareTo(another.amount);
+        if (result != 0) {
+            return result;
+        }
+        result = purchaser.compareTo(another.purchaser);
+        if (result != 0) {
+            return result;
+        }
+        result = description.compareTo(another.description);
+        if (result != 0) {
+            return result;
+        }
+        result = notes.compareTo(another.notes);
+        if (result != 0) {
+            return result;
+        }
+        // If all the values are equal, then compare the IDs.
+        // This statement should never return 0.
+        return id.compareTo(another.id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Transaction)) {
+            return false;
+        }
+        Transaction t = (Transaction)o;
+        return id.equals(t.id);
+    }
 }

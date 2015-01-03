@@ -40,6 +40,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -201,12 +203,14 @@ public class MainActivity extends ActionBarActivity implements
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
-
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
+                Transaction newTransaction = Transaction.newFromSnapshot(dataSnapshot);
+                int index = mTransactions.indexOf(newTransaction);
+                mTransactions.remove(index);
+                mTransactions.add(index, newTransaction);
                 updateTransactionsUi();
             }
 
@@ -240,6 +244,12 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateTransactionsUi() {
+        Collections.sort(mTransactions, new Comparator<Transaction>() {
+            @Override
+            public int compare(Transaction lhs, Transaction rhs) {
+                return lhs.compareTo(rhs);
+            }
+        });
         TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
         mListView.setAdapter(adapter);
     }
