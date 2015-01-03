@@ -18,6 +18,7 @@ package com.chriscartland.octaviastreethilton.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.R;
@@ -33,8 +34,16 @@ public class TransactionActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction);
 
+        setupToolbar();
+
         Transaction transaction = getIntent().getParcelableExtra(Transaction.EXTRA);
         TextView view = (TextView) findViewById(R.id.transaction);
         view.setText(transaction.toString());
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
+        setSupportActionBar(toolbar);
     }
 }

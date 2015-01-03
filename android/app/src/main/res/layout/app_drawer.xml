@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2015 Chris Cartland. All Rights Reserved.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/drawer"
+    android:layout_width="@dimen/drawer_width"
+    android:layout_height="match_parent"
+    android:layout_gravity="left|start"
+    android:background="@color/drawer_background"
+    android:fitsSystemWindows="true"
+    >
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/identity_height"
+        android:layout_marginStart="@dimen/drawer_margin"
+        android:layout_marginEnd="@dimen/drawer_margin"
+        >
+        <ImageView
+            android:id="@+id/identity_image"
+            android:src="@drawable/ic_launcher"
+            android:layout_width="@dimen/identity_height"
+            android:layout_height="@dimen/identity_height"
+            />
+        <TextView
+            android:id="@+id/identity_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|start"
+            android:textSize="@dimen/list_item_text_size"
+            android:padding="@dimen/text_padding"
+            />
+    </LinearLayout>
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_with_google"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_item_height"
+        android:layout_marginStart="@dimen/drawer_margin"
+        android:layout_marginEnd="@dimen/drawer_margin"
+        />
+    <Button
+        android:id="@+id/sign_out"
+        android:text="@string/sign_out"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/sign_out_button_height"
+        android:textSize="@dimen/sign_out_text_size"
+        android:layout_marginStart="@dimen/drawer_margin"
+        android:layout_marginEnd="@dimen/drawer_margin"
+        />
+    <ListView
+        android:id="@+id/drawer_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/navigation_margin_top"
+        android:layout_marginStart="@dimen/drawer_margin"
+        android:layout_marginEnd="@dimen/drawer_margin"
+        >
+    </ListView>
+</LinearLayout>
