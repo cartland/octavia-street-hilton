@@ -28,30 +28,31 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.auth.FirebaseAuthManager;
 import com.chriscartland.octaviastreethilton.auth.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity implements
-        FirebaseAuthManager.FirebaseAuthCallback {
+        AuthManager.AuthCallback {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    private GoogleOAuthManager mGoogleOAuthManager;
-    private FirebaseAuthManager mFirebaseAuthManager;
 
     private Firebase mFirebase;
     private ChildEventListener mTransactionListener;
@@ -70,6 +71,9 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Firebase.setAndroidContext(this);
+        AuthManager.onCreate(this); // setContentView must be called before AuthManager.onCreate()
+
         // Get default room ID.
         mRoomId = getString(R.string.default_room_id);
 
@@ -79,11 +83,6 @@ public class MainActivity extends ActionBarActivity implements
         createDrawer();
 
         createFirebase();
-        createAuth();
-        startFirebase();
-        startAuth();
-
-        mGoogleOAuthManager.signIn();
 
         updateTransactionFilter();
         updateAuthDependentListeners();
@@ -92,8 +91,46 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        AuthManager.onStart(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AuthManager.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AuthManager.onPause(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AuthManager.onStop(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AuthManager.onDestroy(this);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        AuthManager.getInstance(this).onActivityResult(requestCode, resultCode, data);
+    }
+
+    /* AuthManager.AuthCallback implementation. */
+    @Override
+    public void onAuthResult(Auth auth, Error error) {
         updateAuthDependentListeners();
     }
+
+
+
 
     private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -169,7 +206,6 @@ public class MainActivity extends ActionBarActivity implements
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "childS: " + s);
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
 
@@ -177,7 +213,6 @@ public class MainActivity extends ActionBarActivity implements
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "childS: " + s);
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
@@ -191,7 +226,6 @@ public class MainActivity extends ActionBarActivity implements
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "childS: " + s);
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
@@ -201,27 +235,6 @@ public class MainActivity extends ActionBarActivity implements
                 Log.d(TAG, "transaction event canceled: " + firebaseError);
             }
         };
-    }
-
-    private void createAuth() {
-        if (mFirebaseAuthManager == null) {
-            mFirebaseAuthManager = new FirebaseAuthManager(mFirebase);
-        }
-
-        if (mGoogleOAuthManager == null) {
-            mGoogleOAuthManager = new GoogleOAuthManager();
-        }
-    }
-
-    private void startFirebase() {
-        Firebase.setAndroidContext(this);
-    }
-
-    private void startAuth() {
-        mFirebaseAuthManager.setCallback(this);
-        mGoogleOAuthManager.setActivity(this);
-        mGoogleOAuthManager.setCallback(mFirebaseAuthManager);
-        mGoogleOAuthManager.start();
     }
 
     private void updateTransactionFilter() {
@@ -244,48 +257,5 @@ public class MainActivity extends ActionBarActivity implements
 
         mFirebase.child("transactions").child(mRoomId).removeEventListener(mTransactionListener);
         mFirebase.child("transactions").child(mRoomId).orderByKey().addChildEventListener(mTransactionListener);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Don't forget to call GoogleOAuthManager.onActivityResult()
-        mGoogleOAuthManager.onActivityResult(requestCode, resultCode, data);
-    }
-
-    // Implement interface.
-    @Override
-    public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
-        if (error != null) {
-            mTransactions = new ArrayList<>();
-            mGoogleOAuthManager.updateIdentityUi(null);
-        } else {
-            Map<String, Object> data = authData.getProviderData();
-            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
-            mGoogleOAuthManager.updateIdentityUi(userProfile);
-        }
-        updateAuthDependentListeners();
-        updateTransactionsUi();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 }

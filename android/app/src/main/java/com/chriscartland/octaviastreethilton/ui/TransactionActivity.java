@@ -93,13 +93,13 @@ public class TransactionActivity extends ActionBarActivity implements
     // Implement interface.
     @Override
     public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
-        if (error != null) {
-            mGoogleOAuthManager.updateIdentityUi(null);
-        } else {
-            Map<String, Object> data = authData.getProviderData();
-            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
-            mGoogleOAuthManager.updateIdentityUi(userProfile);
-        }
+//        if (error != null) {
+//            mGoogleOAuthManager.updateIdentityUi(null);
+//        } else {
+//            Map<String, Object> data = authData.getProviderData();
+//            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
+//            mGoogleOAuthManager.updateIdentityUi(userProfile);
+//        }
     }
 
 }

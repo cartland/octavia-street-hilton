@@ -67,12 +67,6 @@ public class GoogleOAuthManager implements
      * sign-in. */
     private ConnectionResult mGoogleConnectionResult;
 
-    /* Drawer widgets. */
-    private SignInButton mGoogleSignInButton;
-    private Button mSignOutButton;
-    private ImageView mIdentityImage;
-    private TextView mIdentityName;
-
     public interface GoogleOAuthManagerCallback {
         void onReceivedGoogleOAuthToken(String token, String error);
     }
@@ -93,34 +87,6 @@ public class GoogleOAuthManager implements
         }
         if (mCallback == null) {
             throw new IllegalStateException("GoogleOAuthManager: Must setCallback() before start()");
-        }
-
-        if (mIdentityImage == null) {
-            mIdentityImage = (ImageView) mActivity.findViewById(R.id.identity_image);
-        }
-        if (mIdentityName == null) {
-            mIdentityName = (TextView) mActivity.findViewById(R.id.identity_name);
-        }
-
-        /* Load the Google Sign-In button */
-        if (mGoogleSignInButton == null) {
-            mGoogleSignInButton = (SignInButton) mActivity.findViewById(R.id.sign_in_with_google);
-            mGoogleSignInButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    GoogleOAuthManager.this.signIn();
-                }
-            });
-        }
-        /* Sign out button */
-        if (mSignOutButton == null) {
-            mSignOutButton = (Button) mActivity.findViewById(R.id.sign_out);
-            mSignOutButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    GoogleOAuthManager.this.signOut();
-                }
-            });
         }
         connect();
     }
@@ -187,28 +153,6 @@ public class GoogleOAuthManager implements
             Log.d(TAG, "mGoogleApiClient.connect()");
             mGoogleApiClient.connect();
         }
-    }
-
-    public void updateIdentityUi(Map<String, String> userProfile) {
-        String displayName;
-        String image;
-        if (userProfile != null) {
-            displayName = userProfile.get("name");
-            image = userProfile.get("picture");
-            mGoogleSignInButton.setVisibility(View.GONE);
-            mSignOutButton.setVisibility(View.VISIBLE);
-        } else {
-            displayName = "";
-            image = null;
-            mGoogleSignInButton.setVisibility(View.VISIBLE);
-            mSignOutButton.setVisibility(View.GONE);
-        }
-        Log.d(TAG, "updateIdentityUi(displayName=" + displayName + ", image=" + image + ")");
-        mIdentityName.setText(displayName);
-        Glide.with(mActivity)
-                .load(image)
-                .error(R.drawable.ic_launcher)
-                .into(mIdentityImage);
     }
 
     public GoogleApiClient getGoogleApiClient() {
