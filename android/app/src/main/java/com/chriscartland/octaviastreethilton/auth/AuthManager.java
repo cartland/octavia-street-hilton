@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.User;
@@ -42,8 +43,8 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
 
     private static final String TAG = AuthManager.class.getSimpleName();
 
-    private Activity mActivity;
     private Firebase mFirebase;
+    private Activity mActivity;
     private Auth mAuth;
     private Error mError;
     private AuthCallback mAuthCallback;
@@ -110,8 +111,8 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         ImageView image = (ImageView) mActivity.findViewById(R.id.identity_image);
         setUserInterface(new AuthUi(R.id.sign_in_with_google, R.id.sign_out, R.id.identity_name, R.id.identity_image));
 
-        Firebase firebase = new Firebase(mActivity.getString(R.string.firebase_url));
-        setFirebaseAuthManager(new FirebaseAuthManager(firebase));
+        mFirebase = ((Application) mActivity.getApplication()).getFirebase();
+        setFirebaseAuthManager(new FirebaseAuthManager(mFirebase));
         setGoogleOAuthManager(new GoogleOAuthManager());
     }
 

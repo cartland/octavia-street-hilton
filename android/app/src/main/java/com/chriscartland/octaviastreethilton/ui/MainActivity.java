@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
@@ -62,9 +63,8 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Firebase.setAndroidContext(this);
         AuthManager.onCreate(this); // setContentView must be called before AuthManager.onCreate()
+        mFirebase = ((Application) getApplication()).getFirebase();
 
         // Get default room ID.
         mRoomId = getString(R.string.default_room_id);
@@ -192,9 +192,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void createFirebase() {
-        Firebase.setAndroidContext(this);
-        mFirebase = new Firebase(getString(R.string.firebase_url));
-
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -225,6 +222,8 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onCancelled(FirebaseError firebaseError) {
                 Log.d(TAG, "transaction event canceled: " + firebaseError);
+                mTransactions = new ArrayList<>();
+                updateTransactionsUi();
             }
         };
     }
@@ -242,6 +241,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateAuthDependentListeners() {
+        Log.d(TAG, "updateAuthDependentListeners()");
         // Firebase does not call value event listeners when the auth state changes.
         // In order for our event listeners to get data based on new auth information,
         // we must remove the event listener and add it again every time we detect that
