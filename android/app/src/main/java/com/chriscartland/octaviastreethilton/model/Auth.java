@@ -16,8 +16,6 @@
 
 package com.chriscartland.octaviastreethilton.model;
 
-import android.text.TextUtils;
-
 import com.firebase.client.AuthData;
 
 /**

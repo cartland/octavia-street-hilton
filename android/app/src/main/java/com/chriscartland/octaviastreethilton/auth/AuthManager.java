@@ -33,7 +33,6 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.google.android.gms.common.SignInButton;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -58,7 +57,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
     }
 
     public interface AuthUserInterface {
-        void updateAuthUserInterface(Auth auth);
+        void updateAuthUserInterface(Activity activity, Auth auth);
     }
 
     // Singleton.
@@ -68,7 +67,6 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         if (INSTANCE == null) {
             INSTANCE = new AuthManager();
         }
-        INSTANCE.mActivity = activity;
         return INSTANCE;
     }
 
@@ -80,10 +78,14 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         mUserInterface = null;
     }
 
+    public void setActivity(Activity activity) {
+        this.mActivity = activity;
+    }
 
     /* Lifecycle methods */
 
     public static void onCreate(final Activity activity) {
+        getInstance(activity).setActivity(activity);
         getInstance(activity).onCreate();
     }
 
@@ -106,7 +108,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
         });
         TextView name = (TextView) mActivity.findViewById(R.id.identity_name);
         ImageView image = (ImageView) mActivity.findViewById(R.id.identity_image);
-        setUserInterface(new AuthUi(mActivity, signInButton, signOutButton, name, image));
+        setUserInterface(new AuthUi(R.id.sign_in_with_google, R.id.sign_out, R.id.identity_name, R.id.identity_image));
 
         Firebase firebase = new Firebase(mActivity.getString(R.string.firebase_url));
         setFirebaseAuthManager(new FirebaseAuthManager(firebase));
@@ -114,6 +116,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
     }
 
     public static void onStart(Activity activity) {
+        getInstance(activity).setActivity(activity);
         getInstance(activity).onStart();
     }
 
@@ -122,6 +125,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
     }
 
     public static void onResume(Activity activity) {
+        getInstance(activity).setActivity(activity);
         getInstance(activity).onResume();
     }
 
@@ -210,7 +214,7 @@ public class AuthManager implements FirebaseAuthManager.FirebaseAuthCallback {
     private void updateUserInterfaceCallback() {
         Log.d(TAG, "updateUserInterfaceCallback()");
         if (mUserInterface != null) {
-            mUserInterface.updateAuthUserInterface(mAuth);
+            mUserInterface.updateAuthUserInterface(mActivity, mAuth);
         } else {
             Log.d(TAG, "Cannot update null UI callback");
         }

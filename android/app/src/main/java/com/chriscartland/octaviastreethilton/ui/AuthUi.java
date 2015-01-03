@@ -16,10 +16,9 @@
 
 package com.chriscartland.octaviastreethilton.ui;
 
-import android.content.Context;
+import android.app.Activity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,10 +27,6 @@ import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.User;
-import com.firebase.client.AuthData;
-import com.google.android.gms.common.SignInButton;
-
-import java.util.Map;
 
 /**
  * Created by cartland on 1/2/15.
@@ -40,23 +35,26 @@ public class AuthUi implements AuthManager.AuthUserInterface {
 
     private static final String TAG = AuthUi.class.getSimpleName();
 
-    private Context mContext;
-    private View mGoogleSignInButton;
-    private View mSignOutButton;
-    private TextView mIdentityName;
-    private ImageView mIdentityImage;
+    private int mGoogleSignInButtonId;
+    private int mSignOutButtonId;
+    private int mIdentityNameId;
+    private int mIdentityImageId;
 
-    public AuthUi(Context context, View signInButton, View signOutButton, TextView name, ImageView image) {
-        mContext = context;
-        mGoogleSignInButton = signInButton;
-        mSignOutButton = signOutButton;
-        mIdentityName = name;
-        mIdentityImage = image;
+    public AuthUi(int signInButton, int signOutButton, int name, int image) {
+        mGoogleSignInButtonId = signInButton;
+        mSignOutButtonId = signOutButton;
+        mIdentityNameId = name;
+        mIdentityImageId = image;
     }
 
     @Override
-    public void updateAuthUserInterface(Auth auth) {
+    public void updateAuthUserInterface(Activity activity, Auth auth) {
         Log.d(TAG, "updateAuthUserInterface(auth=" + auth + ")");
+        View mGoogleSignInButton = activity.findViewById(mGoogleSignInButtonId);
+        View mSignOutButton = activity.findViewById(mSignOutButtonId);
+        TextView mIdentityName = (TextView) activity.findViewById(mIdentityNameId);
+        ImageView mIdentityImage = (ImageView) activity.findViewById(mIdentityImageId);
+
         String displayName;
         String image;
         User user = null;
@@ -76,7 +74,7 @@ public class AuthUi implements AuthManager.AuthUserInterface {
         }
         Log.d(TAG, "UI(displayName=" + displayName + ", image=" + image + ")");
         mIdentityName.setText(displayName);
-        Glide.with(mContext)
+        Glide.with(activity)
                 .load(image)
                 .error(R.drawable.ic_launcher)
                 .into(mIdentityImage);

@@ -16,90 +16,84 @@
 
 package com.chriscartland.octaviastreethilton.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.chriscartland.octaviastreethilton.auth.FirebaseAuthManager;
-import com.chriscartland.octaviastreethilton.auth.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.auth.AuthManager;
+import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.Transaction;
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-
-import java.util.Map;
 
 /**
  * View for viewing and editing transactions.
  */
 public class TransactionActivity extends ActionBarActivity implements
-        GoogleOAuthManager.GoogleOAuthManagerCallback, FirebaseAuthManager.FirebaseAuthCallback {
+        AuthManager.AuthCallback {
 
     private static final String TAG = TransactionActivity.class.getSimpleName();
-
-    private Firebase mFirebase;
-    private GoogleOAuthManager mGoogleOAuthManager;
-    private FirebaseAuthManager mFirebaseAuthManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction);
 
-        setupToolbar();
+        createToolbar();
 
         Transaction transaction = getIntent().getParcelableExtra(Transaction.EXTRA);
         TextView view = (TextView) findViewById(R.id.transaction);
         view.setText(transaction.toString());
 
-        setupFirebase();
-        setupAuth();
+        AuthManager.onCreate(this); // setContentView must be called before AuthManager.onCreate()
     }
 
-    private void setupToolbar() {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        AuthManager.onStart(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AuthManager.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AuthManager.onPause(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        AuthManager.onStop(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        AuthManager.onDestroy(this);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        AuthManager.getInstance(this).onActivityResult(requestCode, resultCode, data);
+    }
+
+    /* AuthManager.AuthCallback implementation. */
+    @Override
+    public void onAuthResult(Auth auth, Error error) {
+        Log.d(TAG, "onAuthResult(auth=" + auth + ", error=" + error + ")");
+    }
+
+    private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
         setSupportActionBar(toolbar);
     }
-
-    private void setupFirebase() {
-        Firebase.setAndroidContext(this);
-        mFirebase = new Firebase(getString(R.string.firebase_url));
-    }
-
-    private void setupAuth() {
-        mFirebaseAuthManager = new FirebaseAuthManager(mFirebase);
-        mFirebaseAuthManager.setCallback(this);
-
-        mGoogleOAuthManager = new GoogleOAuthManager();
-        mGoogleOAuthManager.setActivity(this);
-        mGoogleOAuthManager.setCallback(mFirebaseAuthManager);
-        mGoogleOAuthManager.start();
-    }
-
-    @Override
-    public void onReceivedGoogleOAuthToken(String token, String error) {
-        String logToken = token;
-        if (logToken != null) {
-            logToken = logToken.substring(0, 10);
-        }
-        Log.d(TAG, "onReceivedGoogleOAuthToken(token=" + logToken + "..., error="
-                + error + ")");
-    }
-
-    // Implement interface.
-    @Override
-    public void onReceivedFirebaseAuth(AuthData authData, FirebaseError error) {
-//        if (error != null) {
-//            mGoogleOAuthManager.updateIdentityUi(null);
-//        } else {
-//            Map<String, Object> data = authData.getProviderData();
-//            Map<String, String> userProfile = (Map<String, String>) data.get("cachedUserProfile");
-//            mGoogleOAuthManager.updateIdentityUi(userProfile);
-//        }
-    }
-
 }

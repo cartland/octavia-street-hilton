@@ -23,30 +23,22 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.chriscartland.octaviastreethilton.auth.AuthManager;
-import com.chriscartland.octaviastreethilton.auth.FirebaseAuthManager;
-import com.chriscartland.octaviastreethilton.auth.GoogleOAuthManager;
 import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.Transaction;
-import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.google.android.gms.common.SignInButton;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 
 public class MainActivity extends ActionBarActivity implements
