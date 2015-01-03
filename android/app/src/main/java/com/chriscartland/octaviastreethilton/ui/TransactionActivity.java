@@ -154,7 +154,6 @@ public class TransactionActivity extends ActionBarActivity implements
     private void createFirebase() {
         String id = mTransaction.getId();
         mTransactionReference = mFirebase.child("transactions").child(mRoomId).child(id);
-        mTransactionReference.child("date").setValue("12341289734");    
 
         mTransactionListener = new ChildEventListener() {
             @Override
