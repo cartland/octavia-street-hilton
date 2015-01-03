@@ -58,6 +58,8 @@ public class MainActivity extends ActionBarActivity implements
     private String mTransactionFilter;
     private String mRoomId;
     private ArrayList<Transaction> mTransactions;
+    private Auth mAuth;
+    private Error mError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +120,11 @@ public class MainActivity extends ActionBarActivity implements
     /* AuthManager.AuthCallback implementation. */
     @Override
     public void onAuthResult(Auth auth, Error error) {
-        updateAuthDependentListeners();
+        if (((mAuth == null) != (auth == null)) || ((mError == null) != (error == null))) {
+            updateAuthDependentListeners();
+        }
+        mAuth = auth;
+        mError = error;
     }
 
 

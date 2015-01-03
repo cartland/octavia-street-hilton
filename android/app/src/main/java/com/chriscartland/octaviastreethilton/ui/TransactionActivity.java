@@ -23,10 +23,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.Transaction;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 
 /**
  * View for viewing and editing transactions.
@@ -36,18 +41,30 @@ public class TransactionActivity extends ActionBarActivity implements
 
     private static final String TAG = TransactionActivity.class.getSimpleName();
 
+    private Firebase mFirebase;
+    private ChildEventListener mTransactionListener;
+    private TextView mView;
+
+    private String mRoomId;
+    private Transaction mTransaction;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction);
+        AuthManager.onCreate(this); // setContentView must be called before AuthManager.onCreate()
+        mFirebase = ((Application) getApplication()).getFirebase();
+
+        // Get default room ID.
+        mRoomId = getString(R.string.default_room_id);
 
         createToolbar();
 
-        Transaction transaction = getIntent().getParcelableExtra(Transaction.EXTRA);
-        TextView view = (TextView) findViewById(R.id.transaction);
-        view.setText(transaction.toString());
+        mTransaction = getIntent().getParcelableExtra(Transaction.EXTRA);
+        mView = (TextView) findViewById(R.id.transaction);
+        createFirebase();
 
-        AuthManager.onCreate(this); // setContentView must be called before AuthManager.onCreate()
+        updateUI();
     }
 
     @Override
@@ -89,11 +106,66 @@ public class TransactionActivity extends ActionBarActivity implements
     @Override
     public void onAuthResult(Auth auth, Error error) {
         Log.d(TAG, "onAuthResult(auth=" + auth + ", error=" + error + ")");
+        updateAuthDependentListeners();
     }
+
 
     private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
         setSupportActionBar(toolbar);
+    }
+
+    private void createFirebase() {
+        mTransactionListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                mTransaction.updateFieldInSnapshot(dataSnapshot);
+                updateUI();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildChanged");
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved");
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildMoved");
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                mTransaction = null;
+                updateUI();
+            }
+        };
+    }
+
+    private void updateUI() {
+        if (mTransaction != null) {
+            mView.setText(mTransaction.toString());
+        } else {
+            mView.setText("");
+        }
+    }
+
+    private void updateAuthDependentListeners() {
+        Log.d(TAG, "updateAuthDependentListeners()");
+        // Firebase does not call value event listeners when the auth state changes.
+        // In order for our event listeners to get data based on new auth information,
+        // we must remove the event listener and add it again every time we detect that
+        // the auth state has changed.
+
+        String id = mTransaction.getId();
+        Log.d(TAG, "id: " + id);
+        Firebase tRef = mFirebase.child("transactions").child(mRoomId).child(id);
+        tRef.removeEventListener(mTransactionListener);
+        tRef.addChildEventListener(mTransactionListener);
     }
 }

@@ -32,6 +32,12 @@ public class Transaction implements Parcelable {
 
     private static final String TAG = Transaction.class.getSimpleName();
     public static final String EXTRA = "com.chriscartland.octaviastreethilton.TRANSACTION_EXTRA";
+    private static final String KEY_DATE = "date";
+    private static final String KEY_AMOUNT = "amount";
+    private static final String KEY_PURCHASER = "purchaser";
+    private static final String KEY_DESCRIPTION = "description";
+    private static final String KEY_NOTES = "notes";
+    private static final String KEY_DEBTS = "debts";
 
     private String id;
     private String date;
@@ -69,50 +75,69 @@ public class Transaction implements Parcelable {
         return debts;
     }
 
-    private Transaction(String id, String date, String amount, String purchaser, String description,
-                        String notes, List<Debt> debts) {
+    public void setId(String id) {
         this.id = id;
+    }
+
+    public void setDate(String date) {
         this.date = date;
+    }
+
+    public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public void setPurchaser(String purchaser) {
         this.purchaser = purchaser;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public void setDebts(List<Debt> debts) {
         this.debts = debts;
     }
 
-    public static Transaction newFromSnapshot(DataSnapshot dataSnapshot) {
-        Transaction.Builder builder = new Builder();
+    public Transaction() {}
 
-        builder.setId(dataSnapshot.getKey());
+    public static Transaction newFromSnapshot(DataSnapshot dataSnapshot) {
+        Transaction transaction = new Transaction();
+
+        String id = dataSnapshot.getKey();
+        transaction.setId(id);
         for (DataSnapshot child : dataSnapshot.getChildren()) {
-            String key = child.getKey();
-            String value = child.getValue().toString();
-            switch (key) {
-                case "date":
-                    builder.setDate(value);
-                    break;
-                case "amount":
-                    builder.setAmount(value);
-                    break;
-                case "purchaser":
-                    builder.setPurchaser(value);
-                    break;
-                case "description":
-                    builder.setDescription(value);
-                    break;
-                case "notes":
-                    builder.setNotes(value);
-                    break;
-                case "debts":
-                    List<Debt> debts = parseDebtsFromSnapshot(child);
-                    builder.setDebts(debts);
-                    break;
-                default:
-                    // Do nothing
-                    break;
-            }
+            transaction.updateFieldInSnapshot(child);
         }
-        return builder.build();
+        return transaction;
+    }
+
+    public void updateFieldInSnapshot(DataSnapshot dataSnapshot) {
+        String value = dataSnapshot.getValue().toString();
+        switch (dataSnapshot.getKey()) {
+            case Transaction.KEY_DATE:
+                setDate(value);
+                break;
+            case Transaction.KEY_AMOUNT:
+                setAmount(value);
+                break;
+            case Transaction.KEY_PURCHASER:
+                setPurchaser(value);
+                break;
+            case Transaction.KEY_DESCRIPTION:
+                setDescription(value);
+                break;
+            case Transaction.KEY_NOTES:
+                setNotes(value);
+                break;
+            case Transaction.KEY_DEBTS:
+                setDebts(parseDebtsFromSnapshot(dataSnapshot));
+                break;
+        }
     }
 
     private static List<Debt> parseDebtsFromSnapshot(DataSnapshot value) {
@@ -137,52 +162,6 @@ public class Transaction implements Parcelable {
         return result;
     }
 
-    public static class Builder {
-
-        private String id;
-        private String date;
-        private String amount;
-        private String purchaser;
-        private String description;
-        private String notes;
-        private List<Debt> debts;
-
-        public Builder() {}
-
-        public Transaction build() {
-            return new Transaction(id, date, amount, purchaser, description, notes, debts);
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public void setDate(String date) {
-            this.date = date;
-        }
-
-        public void setAmount(String amount) {
-            this.amount = amount;
-        }
-
-        public void setPurchaser(String purchaser) {
-            this.purchaser =  purchaser;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public void setNotes(String notes) {
-            this.notes = notes;
-        }
-
-        public void setDebts(List<Debt> debts) {
-            this.debts = debts;
-        }
-
-    }
-
     @Override
     public String toString() {
         return id + " " + date + " " + amount + " " + purchaser + " " + description
@@ -198,6 +177,7 @@ public class Transaction implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(date);
         dest.writeString(amount);
         dest.writeString(purchaser);
@@ -210,16 +190,17 @@ public class Transaction implements Parcelable {
             new Creator<Transaction>() {
                 @Override
                 public Transaction createFromParcel(Parcel source) {
-                    Transaction.Builder builder = new Builder();
-                    builder.setDate(source.readString());
-                    builder.setAmount(source.readString());
-                    builder.setPurchaser(source.readString());
-                    builder.setDescription(source.readString());
-                    builder.setNotes(source.readString());
+                    Transaction transaction = new Transaction();
+                    transaction.setId(source.readString());
+                    transaction.setDate(source.readString());
+                    transaction.setAmount(source.readString());
+                    transaction.setPurchaser(source.readString());
+                    transaction.setDescription(source.readString());
+                    transaction.setNotes(source.readString());
                     ArrayList<Debt> debtArray = new ArrayList<>();
                     source.readList(debtArray, Debt.class.getClassLoader());
-                    builder.setDebts(debtArray);
-                    return builder.build();
+                    transaction.setDebts(debtArray);
+                    return transaction;
                 }
 
                 @Override
