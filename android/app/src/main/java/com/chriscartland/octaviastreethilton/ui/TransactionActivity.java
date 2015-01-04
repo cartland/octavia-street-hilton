@@ -87,8 +87,6 @@ public class TransactionActivity extends ActionBarActivity implements
         createToolbar();
 
         mTransaction = getIntent().getParcelableExtra(Transaction.EXTRA);
-        Log.d(TAG, "UIDEBTS transaction after intent=" + mTransaction);
-
 
         createViews();
         createFirebase();
@@ -206,6 +204,7 @@ public class TransactionActivity extends ActionBarActivity implements
     private void createFirebase() {
         String id = mTransaction.getId();
         mTransactionReference = mFirebase.child("transactions").child(mRoomId).child(id);
+        mTransactionReference.setValue(mTransaction);
 
         mTransactionListener = new ChildEventListener() {
             @Override
