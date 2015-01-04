@@ -56,7 +56,6 @@ public class MainActivity extends ActionBarActivity implements
     private ListView mListView;
     private ListView mDrawerNavigation;
 
-    private TransactionArrayAdapter mTransactionAdapter;
     private ArrayAdapter<CharSequence>  mSpinnerAdapter;
     private String mTransactionFilter;
     private String mRoomId;
@@ -168,10 +167,9 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "Transaction clicked: " + position);
-                mTransactionAdapter.toggleSelected(view, position);
-//                Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
-//                intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
-//                startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
+                intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
+                startActivity(intent);
             }
         });
     }
@@ -252,8 +250,8 @@ public class MainActivity extends ActionBarActivity implements
                 return lhs.compareTo(rhs);
             }
         });
-        mTransactionAdapter = new TransactionArrayAdapter(this, mTransactions);
-        mListView.setAdapter(mTransactionAdapter);
+        TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);
+        mListView.setAdapter(adapter);
     }
 
     private void updateAuthDependentListeners() {

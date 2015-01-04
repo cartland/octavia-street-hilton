@@ -26,23 +26,12 @@
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
 
-        <item name="android:textColor">#000</item>
-
-    </style>
-
-    <style name="TextColor">
-        <item name="android:textColor">#000</item>
     </style>
 
     <style name="MyActionBarStyle">styles</style>
 
-    <color name="color_primary">#3366cc</color>
-    <color name="color_primary_dark">#333399</color>
-    <color name="color_accent">#3399ff</color>
-
-    <color name="color_background">#ffffff</color>
-    <color name="color_background_selected">#3366cc</color>
-
-    <color name="drawer_background">#000</color>
+    <color name="color_primary">#02f</color>
+    <color name="color_primary_dark">#018</color>
+    <color name="color_accent">#c13</color>
 
 </resources>
