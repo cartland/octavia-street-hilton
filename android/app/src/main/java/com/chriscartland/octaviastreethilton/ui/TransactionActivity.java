@@ -346,11 +346,11 @@ public class TransactionActivity extends ActionBarActivity implements
         mDescriptionView.setFirebase(mTransactionReference.child(Transaction.KEY_DESCRIPTION));
         mNotesView.setFirebase(mTransactionReference.child(Transaction.KEY_NOTES));
 
-//        Firebase debtsRef = mTransactionReference.child(Transaction.KEY_DEBTS);
-//        FirebaseManager.bindDebtEditText(mCartlandDebtView, debtsRef, Utils.CARTLAND_NAME);
-//        FirebaseManager.bindDebtEditText(mNpstanfordDebtView, debtsRef, Utils.NPSTANFORD_NAME);
-//        FirebaseManager.bindDebtEditText(mRcrabbDebtView, debtsRef, Utils.RCRABB_NAME);
-//        FirebaseManager.bindDebtEditText(mStrommeDebtView, debtsRef, Utils.STROMME_NAME);
+        Firebase debtRef = mTransactionReference.child(Transaction.KEY_DEBTS);
+        mCartlandDebtView.setFirebase(debtRef.child(Utils.CARTLAND_NAME).child(Debt.KEY_AMOUNT));
+        mNpstanfordDebtView.setFirebase(debtRef.child(Utils.NPSTANFORD_NAME).child(Debt.KEY_AMOUNT));
+        mRcrabbDebtView.setFirebase(debtRef.child(Utils.RCRABB_NAME).child(Debt.KEY_AMOUNT));
+        mStrommeDebtView.setFirebase(debtRef.child(Utils.STROMME_NAME).child(Debt.KEY_AMOUNT));
     }
 
     private void updateUI() {
@@ -366,16 +366,16 @@ public class TransactionActivity extends ActionBarActivity implements
                 Log.d(TAG, "UIDEBTS updateUI() id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + debt.getAmount());
                 switch (debt.getDebtor()) {
                     case Utils.CARTLAND_NAME:
-                        mCartlandDebtView.setText(debt.getAmount());
+                        mCartlandDebtView.setTextWithoutSaving(debt.getAmount());
                         break;
                     case Utils.NPSTANFORD_NAME:
-                        mNpstanfordDebtView.setText(debt.getAmount());
+                        mNpstanfordDebtView.setTextWithoutSaving(debt.getAmount());
                         break;
                     case Utils.RCRABB_NAME:
-                        mRcrabbDebtView.setText(debt.getAmount());
+                        mRcrabbDebtView.setTextWithoutSaving(debt.getAmount());
                         break;
                     case Utils.STROMME_NAME:
-                        mStrommeDebtView.setText(debt.getAmount());
+                        mStrommeDebtView.setTextWithoutSaving(debt.getAmount());
                         break;
                     default:
                         Log.e(TAG, "Unrecognized debtor: " + debt);

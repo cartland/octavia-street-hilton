@@ -64,7 +64,7 @@ public class FirebaseEditText extends EditText {
         super.onSelectionChanged(selStart, selEnd);
         if (mNoSave) {
             // Do not change the cursor selection when the text is programatically changed.
-            setSelection(mSelStart, mSelEnd);
+            setSelection(mSelStart, Math.min(mSelEnd, this.length()));
         } else {
             mSelStart = selStart;
             mSelEnd = selEnd;

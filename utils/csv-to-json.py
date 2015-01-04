@@ -63,9 +63,9 @@ def main():
       if key in ['cartland', 'npstanford', 'rcrabb', 'stromme']:
         if value: # We can skip empty debts
           if not 'debts' in transaction:
-            transaction['debts'] = []
+            transaction['debts'] = dict()
           debt = { 'debtor': key, 'amount': value }
-          transaction['debts'].append(debt)
+          transaction['debts'][key] = debt
       else:
         transaction[key] = value
     data.append(transaction)

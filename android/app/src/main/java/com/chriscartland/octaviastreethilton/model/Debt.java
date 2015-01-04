@@ -35,7 +35,11 @@ public class Debt implements Parcelable {
     private String amount;
     private String debtor;
 
-    public Debt() {}
+    public Debt() {
+        id = "";
+        amount = "";
+        debtor = "";
+    }
 
     public String getId() {
         return id;
@@ -64,6 +68,7 @@ public class Debt implements Parcelable {
     public static Debt newFromSnapshot(DataSnapshot debtData) {
         Debt debt = new Debt();
         debt.setId(debtData.getKey());
+        debt.setDebtor(debtData.getKey()); // TODO(cartland): Decide if debtor is ID or field.
         for (DataSnapshot debtField : debtData.getChildren()) {
             debt.updateFieldInSnapshot(debtField);
         }
