@@ -21,23 +21,28 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
+import com.chriscartland.octaviastreethilton.Utils;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
 import com.chriscartland.octaviastreethilton.model.Debt;
@@ -66,12 +71,16 @@ public class TransactionActivity extends ActionBarActivity implements
     private Firebase mTransactionReference;
 
     private View mTransactionView;
+    private Button mSaveButtonView;
     private TextView mDateView;
     private EditText mAmountView;
     private Spinner mPurchaserView;
     private EditText mDescriptionView;
     private EditText mNotesView;
     private EditText mCartlandDebtView;
+    private EditText mNpstanfordDebtView;
+    private EditText mRcrabbDebtView;
+    private EditText mStrommeDebtView;
     private ArrayAdapter<CharSequence> mSpinnerAdapter;
 
     @Override
@@ -87,6 +96,8 @@ public class TransactionActivity extends ActionBarActivity implements
         createToolbar();
 
         mTransaction = getIntent().getParcelableExtra(Transaction.EXTRA);
+        Log.d(TAG, "UIDEBTS transaction after intent=" + mTransaction);
+
 
         createViews();
         createFirebase();
@@ -96,6 +107,36 @@ public class TransactionActivity extends ActionBarActivity implements
 
     private void createViews() {
         mTransactionView = findViewById(R.id.transaction);
+
+        mSaveButtonView = (Button)findViewById(R.id.save_button);
+        mSaveButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSaveButtonView.requestFocus();
+                mTransaction.setDescription(mDescriptionView.getText().toString());
+                mTransaction.setNotes(mNotesView.getText().toString());
+                for (Debt debt : mTransaction.getDebts()) {
+                    String cleanString = "";
+                    switch (debt.getDebtor()) {
+                        case Utils.CARTLAND_NAME:
+                            cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
+                            break;
+                        case Utils.NPSTANFORD_NAME:
+                            cleanString = mNpstanfordDebtView.getText().toString().replaceAll("[$,]", "");
+                            break;
+                        case Utils.RCRABB_NAME:
+                            cleanString = mRcrabbDebtView.getText().toString().replaceAll("[$,]", "");
+                            break;
+                        case Utils.STROMME_NAME:
+                            cleanString = mStrommeDebtView.getText().toString().replaceAll("[$,]", "");
+                            break;
+                    }
+                    Log.d(TAG, "UIDEBTS save data id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + cleanString);
+                    debt.setAmount(cleanString);
+                }
+                mTransactionReference.setValue(mTransaction);
+            }
+        });
 
         mDateView = (TextView) findViewById(R.id.transaction_date_editor);
         mDateView.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +180,7 @@ public class TransactionActivity extends ActionBarActivity implements
             public void afterTextChanged(Editable s) {
                 String cleanString = mAmountView.getText().toString().replaceAll("[$,]", "");
                 Log.d(TAG, "Update amount: " + cleanString);
+                mTransaction.setAmount(cleanString);
                 mTransactionReference.child(Transaction.KEY_AMOUNT).setValue(cleanString);
             }
         });
@@ -149,94 +191,24 @@ public class TransactionActivity extends ActionBarActivity implements
         // Specify the layout to use when the list of choices appears
         mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mPurchaserView.setAdapter(mSpinnerAdapter);
+        mPurchaserView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String purchaser = (String) parent.getItemAtPosition(position);
+                mTransactionReference.child(Transaction.KEY_PURCHASER).setValue(purchaser);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         mDescriptionView = (EditText) findViewById(R.id.transaction_description_editor);
-        mDescriptionView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    mTransactionReference.child(Transaction.KEY_DESCRIPTION)
-                            .setValue(mDescriptionView.getText().toString());
-                }
-            }
-        });
-        mDescriptionView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    mTransactionReference.child(Transaction.KEY_DESCRIPTION)
-                            .setValue(mDescriptionView.getText().toString());
-                }
-                return false;
-            }
-        });
-
         mNotesView = (EditText) findViewById(R.id.transaction_notes_editor);
-        mNotesView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    mTransactionReference.child(Transaction.KEY_NOTES)
-                            .setValue(mNotesView.getText().toString());
-                }
-            }
-        });
-        mNotesView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if(actionId== EditorInfo.IME_ACTION_DONE){
-                    mTransactionReference.child(Transaction.KEY_NOTES)
-                            .setValue(mNotesView.getText().toString());
-                }
-                return false;
-            }
-        });
-
-        // TODO(cartland): Add debts.
         mCartlandDebtView = (EditText) findViewById(R.id.cartland_debt);
-        mCartlandDebtView.addTextChangedListener(new TextWatcher() {
-            private String current = "";
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(current)){
-                    mCartlandDebtView.removeTextChangedListener(this);
-
-                    String cleanString = s.toString().replaceAll("[$,.]", "");
-
-                    try {
-                        double parsed = Double.parseDouble(cleanString);
-                        String formatted = NumberFormat.getCurrencyInstance().format((parsed / 100));
-
-                        current = formatted;
-                        mCartlandDebtView.setText(formatted);
-                        mCartlandDebtView.setSelection(formatted.length());
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "Could not parse double from string: " + cleanString);
-                    }
-
-                    mCartlandDebtView.addTextChangedListener(this);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
-                Log.d(TAG, "Update cartland amount: " + cleanString);
-                Debt debt = null;
-                for (Debt d : mTransaction.getDebts()) {
-                    if (d.getDebtor().equals("cartland")) {
-                        debt = d;
-                    }
-                }
-                mTransactionReference.child(Transaction.KEY_DEBTS).child(debt.getId()).
-                        child(Debt.KEY_AMOUNT).setValue(cleanString);
-            }
-        });
+        mNpstanfordDebtView = (EditText) findViewById(R.id.npstanford_debt);
+        mRcrabbDebtView = (EditText) findViewById(R.id.rcrabb_debt);
+        mStrommeDebtView = (EditText) findViewById(R.id.stromme_debt);
     }
 
     public void showDatePickerDialog(View v) {
@@ -253,8 +225,6 @@ public class TransactionActivity extends ActionBarActivity implements
             public void datePicked(int year, int month, int day) {
                 String date = String.format("%04d-%02d-%02d", year, month + 1, day);
                 mTransactionReference.child(Transaction.KEY_DATE).setValue(date);
-                Log.d(TAG, date);
-                Log.d(TAG, mTransactionReference.child(Transaction.KEY_DATE).toString());
             }
         });
         newFragment.show(getFragmentManager(), "datePicker");
@@ -356,8 +326,23 @@ public class TransactionActivity extends ActionBarActivity implements
             mNotesView.setText(mTransaction.getNotes());
 
             for (Debt debt : mTransaction.getDebts()) {
-                if ("cartland".equals(debt.getDebtor())) {
-                    mCartlandDebtView.setText(debt.getAmount());
+                Log.d(TAG, "UIDEBTS updateUI() id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + debt.getAmount());
+                switch (debt.getDebtor()) {
+                    case Utils.CARTLAND_NAME:
+                        mCartlandDebtView.setText(debt.getAmount());
+                        break;
+                    case Utils.NPSTANFORD_NAME:
+                        mNpstanfordDebtView.setText(debt.getAmount());
+                        break;
+                    case Utils.RCRABB_NAME:
+                        mRcrabbDebtView.setText(debt.getAmount());
+                        break;
+                    case Utils.STROMME_NAME:
+                        mStrommeDebtView.setText(debt.getAmount());
+                        break;
+                    default:
+                        Log.e(TAG, "Unrecognized debtor: " + debt);
+                        break;
                 }
             }
             mTransactionView.setVisibility(View.VISIBLE);

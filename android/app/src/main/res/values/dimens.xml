@@ -45,4 +45,5 @@
     <dimen name="editor_padding">10dp</dimen>
     <dimen name="debtor_name_width">100dp</dimen>
     <dimen name="transaction_debts_list_height">200dp</dimen>
+    <dimen name="save_button_text_size">32sp</dimen>
 </resources>

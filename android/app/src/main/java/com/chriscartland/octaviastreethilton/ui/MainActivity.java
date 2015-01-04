@@ -167,6 +167,7 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "Transaction clicked: " + position);
+                Log.d(TAG, "UIDEBTS transaction before intent=" + parent.getItemAtPosition(position));
                 Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
                 intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
                 startActivity(intent);
