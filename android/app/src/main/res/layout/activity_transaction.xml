@@ -128,7 +128,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
                         android:id="@+id/cartland_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -148,7 +148,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
                         android:id="@+id/npstanford_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -168,7 +168,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
                         android:id="@+id/rcrabb_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
                         android:id="@+id/stromme_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
