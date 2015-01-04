@@ -35,6 +35,9 @@
           // cannot be modified or deleted
           // any member of a room can write a new message
           ".write": "root.child('members/'+$room_id+'/'+auth.uid).exists() && newData.exists()",
+          // the room attribute must be a valid key in room_names/ (the room must exist)
+          // the object to write must have a name, message, and timestamp
+          //".validate": "newData.hasChildren(['user', 'message', 'timestamp'])",
           // the message must be written by logged in user
           "user": {
              ".validate": "newData.val() === auth.uid"
@@ -63,7 +66,9 @@
           
           "notes": { ".validate": "newData.isString()" },
           
-          "$other": { ".validate": false }
+          "debts": { ".validate": true },
+
+          "$other": { ".validate": true }
         }
       }
     }
