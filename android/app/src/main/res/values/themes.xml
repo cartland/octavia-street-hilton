@@ -47,7 +47,7 @@
 
     <color name="color_background">#3366cc</color>
 
-    <color name="drawer_background">#556688</color>
+    <color name="drawer_background">#3366cc</color>
     <color name="text_color">#FFF</color>
     <color name="soft_text_color">#AAA</color>
 

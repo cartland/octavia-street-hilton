@@ -201,7 +201,6 @@ public class TransactionActivity extends ActionBarActivity implements
     private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
-
         setSupportActionBar(toolbar);
 
         toolbar.inflateMenu(R.menu.toolbar_menu);
