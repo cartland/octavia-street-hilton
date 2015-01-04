@@ -38,6 +38,7 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.melnykov.fab.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -171,6 +172,15 @@ public class MainActivity extends ActionBarActivity implements
                 Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
                 intent.putExtra(Transaction.EXTRA, (Transaction) parent.getItemAtPosition(position));
                 startActivity(intent);
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.attachToListView(mListView);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "TODO(cartland): Launch activity to create transaction");
             }
         });
     }
