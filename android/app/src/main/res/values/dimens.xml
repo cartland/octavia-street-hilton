@@ -41,4 +41,6 @@
     <dimen name="transaction_purchaser_text_size">16sp</dimen>
     <dimen name="transaction_text_margin">10dp</dimen>
     <dimen name="transaction_big_date_text_size">32sp</dimen>
+    <dimen name="small_header_height">16sp</dimen>
+    <dimen name="editor_padding">10dp</dimen>
 </resources>

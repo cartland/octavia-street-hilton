@@ -23,6 +23,10 @@
     <string name="default_room_id">octavia-street-hilton</string>
     <string name="sign_out">Sign Out</string>
     <string name="transactions">Transactions</string>
+    <string name="description_header">Description</string>
+    <string name="amount_header">Amount</string>
+    <string name="purchase_header">Purchaser</string>
+    <string name="notes_header">Notes</string>
 
     <string-array name="transactions_array">
         <item>All</item>
