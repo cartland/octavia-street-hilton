@@ -32,6 +32,10 @@
         <item name="android:textColor">@color/text_color</item>
     </style>
 
+    <style name="SoftTextStyle">
+        <item name="android:textColor">@color/soft_text_color</item>
+    </style>
+
     <style name="MyActionBarStyle">styles</style>
 
     <color name="color_primary">#3399ff</color>
@@ -41,9 +45,10 @@
     <color name="fab_pressed">#ff660032</color>
     <color name="fab_ripple">#333399</color>
 
-    <color name="color_background">#FFFFFF</color>
+    <color name="color_background">#3366cc</color>
 
     <color name="drawer_background">#556688</color>
-    <color name="text_color">#fff</color>
+    <color name="text_color">#FFF</color>
+    <color name="soft_text_color">#AAA</color>
 
 </resources>

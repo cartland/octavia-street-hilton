@@ -37,7 +37,7 @@
     <dimen name="transaction_amount_text_size">16sp</dimen>
     <dimen name="transaction_purchaser_width">90dp</dimen>
     <dimen name="transaction_debts_text_size">12sp</dimen>
-    <dimen name="transaction_description_text_size">12sp</dimen>
+    <dimen name="transaction_description_text_size">18sp</dimen>
     <dimen name="transaction_purchaser_text_size">16sp</dimen>
     <dimen name="transaction_text_margin">10dp</dimen>
     <dimen name="transaction_big_date_text_size">32sp</dimen>
@@ -46,4 +46,6 @@
     <dimen name="debtor_name_width">100dp</dimen>
     <dimen name="transaction_debts_list_height">200dp</dimen>
     <dimen name="save_button_text_size">32sp</dimen>
+    <dimen name="transaction_list_item_padding_top">20dp</dimen>
+    <dimen name="transaction_list_margin">20dp</dimen>
 </resources>

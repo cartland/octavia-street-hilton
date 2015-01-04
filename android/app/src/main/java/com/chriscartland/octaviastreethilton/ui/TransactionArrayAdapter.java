@@ -49,13 +49,11 @@ public class TransactionArrayAdapter extends ArrayAdapter<Transaction> {
         TextView amount = (TextView) convertView.findViewById(R.id.transaction_amount);
         TextView purchaser = (TextView) convertView.findViewById(R.id.transaction_purchaser);
         TextView description = (TextView) convertView.findViewById(R.id.transaction_description);
-        TextView notes = (TextView) convertView.findViewById(R.id.transaction_notes);
         TextView debts = (TextView) convertView.findViewById(R.id.transaction_debts);
         date.setText(transaction.getDate());
         amount.setText(transaction.getAmount());
         purchaser.setText(transaction.getPurchaser());
         description.setText(transaction.getDescription());
-        notes.setText(transaction.getNotes());
 
         StringBuilder s = new StringBuilder();
         for (Debt debt : transaction.getDebts()) {

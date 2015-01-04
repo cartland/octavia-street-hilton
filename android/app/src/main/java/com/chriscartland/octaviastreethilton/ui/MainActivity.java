@@ -58,8 +58,6 @@ public class MainActivity extends ActionBarActivity implements
     private ListView mListView;
     private ListView mDrawerNavigation;
 
-    private ArrayAdapter<CharSequence>  mSpinnerAdapter;
-    private String mTransactionFilter;
     private String mRoomId;
     private ArrayList<Transaction> mTransactions;
     private Auth mAuth;
@@ -76,13 +74,11 @@ public class MainActivity extends ActionBarActivity implements
         mRoomId = getString(R.string.default_room_id);
 
         createToolbar();
-        createTransactionFilter();
         createTransactionViews();
         createDrawer();
 
         createFirebase();
 
-        updateTransactionFilter();
         updateAuthDependentListeners();
     }
 
@@ -136,30 +132,6 @@ public class MainActivity extends ActionBarActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
         setSupportActionBar(toolbar);
-    }
-
-    private void createTransactionFilter() {
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        mSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.transactions_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        Spinner spinner = (Spinner) findViewById(R.id.transaction_spinner);
-        spinner.setAdapter(mSpinnerAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mTransactionFilter = (String) parent.getItemAtPosition(position);
-                updateTransactionFilter();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                mTransactionFilter = null;
-                updateTransactionFilter();
-            }
-        });
     }
 
     private void createTransactionViews() {
@@ -263,13 +235,6 @@ public class MainActivity extends ActionBarActivity implements
                 updateTransactionsUi();
             }
         };
-    }
-
-    private void updateTransactionFilter() {
-        if (mTransactionFilter == null) {
-            mTransactionFilter = mSpinnerAdapter.getItem(0).toString();
-        }
-        // TODO(cartland): Update the transaction filter.
     }
 
     private void updateTransactionsUi() {

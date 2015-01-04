@@ -19,11 +19,13 @@
     android:orientation="horizontal"
     android:id="@+id/transaction_item"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/transaction_item_height"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/transaction_list_item_padding_top"
     android:textSize="@dimen/list_item_text_size"
     android:descendantFocusability="blocksDescendants"
     >
     <TextView
+        style="@style/TextStyle"
         android:id="@+id/transaction_date"
         android:layout_width="@dimen/transaction_date_width"
         android:layout_height="wrap_content"
@@ -33,6 +35,7 @@
         android:layout_alignParentStart="true"
         />
     <TextView
+        style="@style/TextStyle"
         android:id="@+id/transaction_amount"
         android:layout_width="@dimen/transaction_amount_width"
         android:layout_height="wrap_content"
@@ -42,6 +45,7 @@
         android:layout_toEndOf="@id/transaction_date"
         />
     <TextView
+        style="@style/TextStyle"
         android:id="@+id/transaction_purchaser"
         android:layout_width="@dimen/transaction_purchaser_width"
         android:layout_height="match_parent"
@@ -51,6 +55,7 @@
         android:layout_alignParentStart="true"
         />
     <TextView
+        style="@style/TextStyle"
         android:id="@+id/transaction_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,22 +69,13 @@
         android:layout_alignParentEnd="true"
         />
     <TextView
+        style="@style/TextStyle"
         android:id="@+id/transaction_debts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/transaction_text_margin"
-        android:layout_marginStart="@dimen/transaction_text_margin"
         android:textSize="@dimen/transaction_debts_text_size"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@id/transaction_description"
         android:layout_alignLeft="@id/transaction_description"
         android:layout_alignStart="@id/transaction_description"
-        />
-    <TextView
-        android:id="@+id/transaction_notes"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:visibility="gone"
         />
 </RelativeLayout>

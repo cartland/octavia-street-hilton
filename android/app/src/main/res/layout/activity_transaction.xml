@@ -28,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/color_background"
         >
 
         <!-- We use a Toolbar so that our drawer can be displayed
@@ -61,6 +62,7 @@
                     android:layout_width="0px" android:layout_height="0px"/>
 
                 <TextView
+                    style="@style/SoftTextStyle"
                     android:text="@string/description_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,6 +71,7 @@
                 <!-- :nextFocusUp and :nextFocusLeft have been set to the id of this component
                 to prevent the dummy from receiving focus again -->
                 <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    style="@style/TextStyle"
                     android:id="@+id/transaction_description_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -90,12 +93,14 @@
                     />
 
                 <TextView
+                    style="@style/SoftTextStyle"
                     android:text="@string/amount_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/small_header_height"
                     />
                 <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
+                    style="@style/TextStyle"
                     android:id="@+id/transaction_amount_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -105,12 +110,14 @@
                     />
 
                 <TextView
+                    style="@style/SoftTextStyle"
                     android:text="@string/purchase_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/small_header_height"
                     />
                 <Spinner
+                    style="@style/TextStyle"
                     android:id="@+id/transaction_purchaser_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -123,12 +130,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView
+                        style="@style/SoftTextStyle"
                         android:text="@string/cartland_header"
                         android:layout_width="@dimen/debtor_name_width"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
                     <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
+                        style="@style/TextStyle"
                         android:id="@+id/cartland_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -139,16 +148,19 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    style="@style/TextStyle"
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView
+                        style="@style/SoftTextStyle"
                         android:text="@string/npstanford_header"
                         android:layout_width="@dimen/debtor_name_width"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
                     <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
+                        style="@style/TextStyle"
                         android:id="@+id/npstanford_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -163,12 +175,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView
+                        style="@style/SoftTextStyle"
                         android:text="@string/rcrabb_header"
                         android:layout_width="@dimen/debtor_name_width"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
                     <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
+                        style="@style/TextStyle"
                         android:id="@+id/rcrabb_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -183,12 +197,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <TextView
+                        style="@style/SoftTextStyle"
                         android:text="@string/stromme_header"
                         android:layout_width="@dimen/debtor_name_width"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
                     <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
+                        style="@style/TextStyle"
                         android:id="@+id/stromme_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -199,12 +215,14 @@
                 </LinearLayout>
 
                 <TextView
+                    style="@style/SoftTextStyle"
                     android:text="@string/notes_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/small_header_height"
                     />
                 <com.chriscartland.octaviastreethilton.FirebaseEditText
+                    style="@style/TextStyle"
                     android:id="@+id/transaction_notes_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
