@@ -30,8 +30,12 @@
 
     <style name="MyActionBarStyle">styles</style>
 
-    <color name="color_primary">#02f</color>
-    <color name="color_primary_dark">#018</color>
-    <color name="color_accent">#c13</color>
+    <color name="color_primary">#3399ff</color>
+    <color name="color_primary_dark">#3366cc</color>
+    <color name="color_accent">#ffcc0064</color>
+
+    <color name="color_background">#FFFFFF</color>
+
+    <color name="drawer_background">#333399</color>
 
 </resources>
