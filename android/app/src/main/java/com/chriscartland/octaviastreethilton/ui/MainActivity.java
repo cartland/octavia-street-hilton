@@ -230,12 +230,14 @@ public class MainActivity extends ActionBarActivity implements
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildAdded");
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d(TAG, "onChildChanged");
                 Transaction newTransaction = Transaction.newFromSnapshot(dataSnapshot);
                 int index = mTransactions.indexOf(newTransaction);
                 mTransactions.remove(index);
@@ -252,7 +254,7 @@ public class MainActivity extends ActionBarActivity implements
 
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
+                Log.d(TAG, "onChildMoved(): TODO(cartland): Implement.");
                 updateTransactionsUi();
             }
 
@@ -284,13 +286,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void updateAuthDependentListeners() {
-        Log.d(TAG, "updateAuthDependentListeners()");
         // Firebase does not call value event listeners when the auth state changes.
         // In order for our event listeners to get data based on new auth information,
         // we must remove the event listener and add it again every time we detect that
         // the auth state has changed.
 
         mFirebase.child("transactions").child(mRoomId).removeEventListener(mTransactionListener);
+        mTransactions = new ArrayList<>();
         mFirebase.child("transactions").child(mRoomId).orderByKey().addChildEventListener(mTransactionListener);
     }
 }
