@@ -36,6 +36,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.Application;
+import com.chriscartland.octaviastreethilton.FirebaseEditText;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.Utils;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
@@ -72,12 +73,12 @@ public class TransactionActivity extends ActionBarActivity implements
     private TextView mDateView;
     private EditText mAmountView;
     private Spinner mPurchaserView;
-    private EditText mDescriptionView;
-    private EditText mNotesView;
-    private EditText mCartlandDebtView;
-    private EditText mNpstanfordDebtView;
-    private EditText mRcrabbDebtView;
-    private EditText mStrommeDebtView;
+    private FirebaseEditText mDescriptionView;
+    private FirebaseEditText mNotesView;
+    private FirebaseEditText mCartlandDebtView;
+    private FirebaseEditText mNpstanfordDebtView;
+    private FirebaseEditText mRcrabbDebtView;
+    private FirebaseEditText mStrommeDebtView;
     private ArrayAdapter<CharSequence> mSpinnerAdapter;
 
     @Override
@@ -229,12 +230,12 @@ public class TransactionActivity extends ActionBarActivity implements
             }
         });
 
-        mDescriptionView = (EditText) findViewById(R.id.transaction_description_editor);
-        mNotesView = (EditText) findViewById(R.id.transaction_notes_editor);
-        mCartlandDebtView = (EditText) findViewById(R.id.cartland_debt);
-        mNpstanfordDebtView = (EditText) findViewById(R.id.npstanford_debt);
-        mRcrabbDebtView = (EditText) findViewById(R.id.rcrabb_debt);
-        mStrommeDebtView = (EditText) findViewById(R.id.stromme_debt);
+        mDescriptionView = (FirebaseEditText) findViewById(R.id.transaction_description_editor);
+        mNotesView = (FirebaseEditText) findViewById(R.id.transaction_notes_editor);
+        mCartlandDebtView = (FirebaseEditText) findViewById(R.id.cartland_debt);
+        mNpstanfordDebtView = (FirebaseEditText) findViewById(R.id.npstanford_debt);
+        mRcrabbDebtView = (FirebaseEditText) findViewById(R.id.rcrabb_debt);
+        mStrommeDebtView = (FirebaseEditText) findViewById(R.id.stromme_debt);
     }
 
     public void showDatePickerDialog(View v) {
@@ -341,6 +342,15 @@ public class TransactionActivity extends ActionBarActivity implements
                 updateUI();
             }
         };
+
+        mDescriptionView.setFirebase(mTransactionReference.child(Transaction.KEY_DESCRIPTION));
+        mNotesView.setFirebase(mTransactionReference.child(Transaction.KEY_NOTES));
+
+//        Firebase debtsRef = mTransactionReference.child(Transaction.KEY_DEBTS);
+//        FirebaseManager.bindDebtEditText(mCartlandDebtView, debtsRef, Utils.CARTLAND_NAME);
+//        FirebaseManager.bindDebtEditText(mNpstanfordDebtView, debtsRef, Utils.NPSTANFORD_NAME);
+//        FirebaseManager.bindDebtEditText(mRcrabbDebtView, debtsRef, Utils.RCRABB_NAME);
+//        FirebaseManager.bindDebtEditText(mStrommeDebtView, debtsRef, Utils.STROMME_NAME);
     }
 
     private void updateUI() {
@@ -348,8 +358,9 @@ public class TransactionActivity extends ActionBarActivity implements
             mDateView.setText(mTransaction.getDate());
             mAmountView.setText(mTransaction.getAmount());
             mPurchaserView.setSelection(mSpinnerAdapter.getPosition(mTransaction.getPurchaser()));
-            mDescriptionView.setText(mTransaction.getDescription());
-            mNotesView.setText(mTransaction.getNotes());
+
+            mDescriptionView.setTextWithoutSaving(mTransaction.getDescription());
+            mNotesView.setTextWithoutSaving(mTransaction.getNotes());
 
             for (Debt debt : mTransaction.getDebts()) {
                 Log.d(TAG, "UIDEBTS updateUI() id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + debt.getAmount());

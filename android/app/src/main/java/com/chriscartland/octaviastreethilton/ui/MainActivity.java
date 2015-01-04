@@ -33,7 +33,6 @@ import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
-import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;

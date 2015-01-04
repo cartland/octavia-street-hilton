@@ -75,7 +75,7 @@
                     />
                 <!-- :nextFocusUp and :nextFocusLeft have been set to the id of this component
                 to prevent the dummy from receiving focus again -->
-                <EditText
+                <com.chriscartland.octaviastreethilton.FirebaseEditText
                     android:id="@+id/transaction_description_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -135,7 +135,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <EditText
+                    <com.chriscartland.octaviastreethilton.FirebaseEditText
                         android:id="@+id/cartland_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -155,7 +155,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <EditText
+                    <com.chriscartland.octaviastreethilton.FirebaseEditText
                         android:id="@+id/npstanford_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -175,7 +175,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <EditText
+                    <com.chriscartland.octaviastreethilton.FirebaseEditText
                         android:id="@+id/rcrabb_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -195,7 +195,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/small_header_height"
                         />
-                    <EditText
+                    <com.chriscartland.octaviastreethilton.FirebaseEditText
                         android:id="@+id/stromme_debt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -211,7 +211,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/small_header_height"
                     />
-                <EditText
+                <com.chriscartland.octaviastreethilton.FirebaseEditText
                     android:id="@+id/transaction_notes_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
