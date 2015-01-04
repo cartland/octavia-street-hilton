@@ -145,7 +145,58 @@ public class TransactionActivity extends ActionBarActivity implements
         mPurchaserView.setAdapter(mSpinnerAdapter);
 
         mDescriptionView = (EditText) findViewById(R.id.transaction_description_editor);
+        mDescriptionView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String description = mDescriptionView.getText().toString();
+                mTransaction.setDescription(description);
+            }
+        });
+        mDescriptionView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    Log.d(TAG, "Update transaction description: " + mTransaction.getDescription());
+                    mTransactionReference.child(Transaction.KEY_DESCRIPTION)
+                            .setValue(mTransaction.getDescription());
+                }
+            }
+        });
+
         mNotesView = (EditText) findViewById(R.id.transaction_notes_editor);
+        mNotesView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String notes = mNotesView.getText().toString();
+                mTransaction.setNotes(notes);
+            }
+        });
+        mNotesView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    Log.d(TAG, "Update transaction notes: " + mTransaction.getNotes());
+                    mTransactionReference.child(Transaction.KEY_NOTES)
+                            .setValue(mTransaction.getNotes());
+                }
+            }
+        });
     }
 
     public void showDatePickerDialog(View v) {
