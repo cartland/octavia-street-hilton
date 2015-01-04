@@ -40,4 +40,5 @@
     <dimen name="transaction_description_text_size">12sp</dimen>
     <dimen name="transaction_purchaser_text_size">16sp</dimen>
     <dimen name="transaction_text_margin">10dp</dimen>
+    <dimen name="transaction_big_date_text_size">32sp</dimen>
 </resources>

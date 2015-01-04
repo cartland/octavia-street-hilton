@@ -42,6 +42,7 @@
 
         <!-- The rest of your content view -->
         <LinearLayout
+            android:id="@+id/transaction"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -51,9 +52,36 @@
             android:paddingBottom="@dimen/activity_vertical_margin"
             >
             <TextView
-                android:id="@+id/transaction"
+                android:id="@+id/transaction_string"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/transaction_date_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/transaction_big_date_text_size"
+                />
+            <EditText
+                android:id="@+id/transaction_amount_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                />
+            <Spinner
+                android:id="@+id/transaction_purchaser_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            <EditText
+                android:id="@+id/transaction_description_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+            <EditText
+                android:id="@+id/transaction_notes_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
         </LinearLayout>
     </LinearLayout>
 

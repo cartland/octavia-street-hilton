@@ -23,9 +23,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.Application;
@@ -38,6 +43,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
 
 /**
@@ -50,11 +56,18 @@ public class TransactionActivity extends ActionBarActivity implements
 
     private Firebase mFirebase;
     private ChildEventListener mTransactionListener;
-    private TextView mView;
 
     private String mRoomId;
     private Transaction mTransaction;
     private Firebase mTransactionReference;
+
+    private View mTransactionView;
+    private TextView mDateView;
+    private EditText mAmountView;
+    private Spinner mPurchaserView;
+    private EditText mDescriptionView;
+    private EditText mNotesView;
+    private ArrayAdapter<CharSequence> mSpinnerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,16 +82,70 @@ public class TransactionActivity extends ActionBarActivity implements
         createToolbar();
 
         mTransaction = getIntent().getParcelableExtra(Transaction.EXTRA);
-        mView = (TextView) findViewById(R.id.transaction);
-        mView.setOnClickListener(new View.OnClickListener() {
+
+        createViews();
+        createFirebase();
+
+        updateUI();
+    }
+
+    private void createViews() {
+        mTransactionView = findViewById(R.id.transaction);
+
+        mDateView = (TextView) findViewById(R.id.transaction_date_editor);
+        mDateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePickerDialog(v);
             }
         });
-        createFirebase();
 
-        updateUI();
+        mAmountView = (EditText) findViewById(R.id.transaction_amount_editor);
+        mAmountView.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!s.toString().equals(current)){
+                    mAmountView.removeTextChangedListener(this);
+
+                    String cleanString = s.toString().replaceAll("[$,.]", "");
+
+                    try {
+                        double parsed = Double.parseDouble(cleanString);
+                        String formatted = NumberFormat.getCurrencyInstance().format((parsed / 100));
+
+                        current = formatted;
+                        mAmountView.setText(formatted);
+                        mAmountView.setSelection(formatted.length());
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, "Could not parse double from string: " + cleanString);
+                    }
+
+                    mAmountView.addTextChangedListener(this);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String cleanString = mAmountView.getText().toString().replaceAll("[$,]", "");
+                Log.d(TAG, "Update amount: " + cleanString);
+                mTransactionReference.child(Transaction.KEY_AMOUNT).setValue(cleanString);
+            }
+        });
+        mPurchaserView = (Spinner) findViewById(R.id.transaction_purchaser_editor);
+        mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.osh_members, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mPurchaserView.setAdapter(mSpinnerAdapter);
+
+        mDescriptionView = (EditText) findViewById(R.id.transaction_description_editor);
+        mNotesView = (EditText) findViewById(R.id.transaction_notes_editor);
     }
 
     public void showDatePickerDialog(View v) {
@@ -188,10 +255,16 @@ public class TransactionActivity extends ActionBarActivity implements
     }
 
     private void updateUI() {
+        Log.d(TAG, "updateUI()");
         if (mTransaction != null) {
-            mView.setText(mTransaction.toString());
+            mDateView.setText(mTransaction.getDate());
+            mAmountView.setText(mTransaction.getAmount());
+            mPurchaserView.setSelection(mSpinnerAdapter.getPosition(mTransaction.getPurchaser()));
+            mDescriptionView.setText(mTransaction.getDescription());
+            mNotesView.setText(mTransaction.getNotes());
+            mTransactionView.setVisibility(View.VISIBLE);
         } else {
-            mView.setText("");
+            mTransactionView.setVisibility(View.GONE);
         }
     }
 
