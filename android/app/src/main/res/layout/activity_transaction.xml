@@ -125,65 +125,85 @@
                     android:paddingBottom="@dimen/editor_padding"
                     />
 
-                <TextView
-                    android:text="@string/cartland_header"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/small_header_height"
-                    />
-                <EditText
-                    android:id="@+id/cartland_debt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/editor_padding"
-                    android:paddingBottom="@dimen/editor_padding"
-                    android:inputType="numberDecimal"
-                    />
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:text="@string/cartland_header"
+                        android:layout_width="@dimen/debtor_name_width"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/small_header_height"
+                        />
+                    <EditText
+                        android:id="@+id/cartland_debt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/editor_padding"
+                        android:paddingBottom="@dimen/editor_padding"
+                        android:inputType="numberDecimal"
+                        />
+                </LinearLayout>
 
-                <TextView
-                    android:text="@string/npstanford_header"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/small_header_height"
-                    />
-                <EditText
-                    android:id="@+id/npstanford_debt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/editor_padding"
-                    android:paddingBottom="@dimen/editor_padding"
-                    android:inputType="numberDecimal"
-                    />
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:text="@string/npstanford_header"
+                        android:layout_width="@dimen/debtor_name_width"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/small_header_height"
+                        />
+                    <EditText
+                        android:id="@+id/npstanford_debt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/editor_padding"
+                        android:paddingBottom="@dimen/editor_padding"
+                        android:inputType="numberDecimal"
+                        />
+                </LinearLayout>
 
-                <TextView
-                    android:text="@string/rcrabb_header"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/small_header_height"
-                    />
-                <EditText
-                    android:id="@+id/rcrabb_debt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/editor_padding"
-                    android:paddingBottom="@dimen/editor_padding"
-                    android:inputType="numberDecimal"
-                    />
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:text="@string/rcrabb_header"
+                        android:layout_width="@dimen/debtor_name_width"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/small_header_height"
+                        />
+                    <EditText
+                        android:id="@+id/rcrabb_debt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/editor_padding"
+                        android:paddingBottom="@dimen/editor_padding"
+                        android:inputType="numberDecimal"
+                        />
+                </LinearLayout>
 
-                <TextView
-                    android:text="@string/stromme_header"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/small_header_height"
-                    />
-                <EditText
-                    android:id="@+id/stromme_debt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/editor_padding"
-                    android:paddingBottom="@dimen/editor_padding"
-                    android:inputType="numberDecimal"
-                    />
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:text="@string/stromme_header"
+                        android:layout_width="@dimen/debtor_name_width"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/small_header_height"
+                        />
+                    <EditText
+                        android:id="@+id/stromme_debt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="@dimen/editor_padding"
+                        android:paddingBottom="@dimen/editor_padding"
+                        android:inputType="numberDecimal"
+                        />
+                </LinearLayout>
 
                 <TextView
                     android:text="@string/notes_header"
