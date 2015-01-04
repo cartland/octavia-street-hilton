@@ -48,6 +48,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -110,9 +112,34 @@ public class TransactionActivity extends ActionBarActivity implements
                 mSaveButtonView.requestFocus();
                 mTransaction.setDescription(mDescriptionView.getText().toString());
                 mTransaction.setNotes(mNotesView.getText().toString());
+                String[] names = getResources().getStringArray(R.array.osh_members);
+                ArrayList<String> remainingNames = new ArrayList<>(Arrays.asList(names));
+                String cleanString = "";
                 for (Debt debt : mTransaction.getDebts()) {
-                    String cleanString = "";
                     switch (debt.getDebtor()) {
+                        case Utils.CARTLAND_NAME:
+                            cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
+                            remainingNames.remove(debt.getDebtor());
+                            break;
+                        case Utils.NPSTANFORD_NAME:
+                            cleanString = mNpstanfordDebtView.getText().toString().replaceAll("[$,]", "");
+                            remainingNames.remove(debt.getDebtor());
+                            break;
+                        case Utils.RCRABB_NAME:
+                            cleanString = mRcrabbDebtView.getText().toString().replaceAll("[$,]", "");
+                            remainingNames.remove(debt.getDebtor());
+                            break;
+                        case Utils.STROMME_NAME:
+                            cleanString = mStrommeDebtView.getText().toString().replaceAll("[$,]", "");
+                            remainingNames.remove(debt.getDebtor());
+                            break;
+                    }
+                    Log.d(TAG, "UIDEBTS save data id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + cleanString);
+                    debt.setAmount(cleanString);
+                }
+                ArrayList<Debt> newDebts = new ArrayList<>(mTransaction.getDebts());
+                for (String name : remainingNames) {
+                    switch (name) {
                         case Utils.CARTLAND_NAME:
                             cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
                             break;
@@ -126,9 +153,13 @@ public class TransactionActivity extends ActionBarActivity implements
                             cleanString = mStrommeDebtView.getText().toString().replaceAll("[$,]", "");
                             break;
                     }
-                    Log.d(TAG, "UIDEBTS save data id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + cleanString);
+                    Debt debt = new Debt();
                     debt.setAmount(cleanString);
+                    debt.setDebtor(name);
+                    newDebts.add(debt);
                 }
+                mTransaction.setDebts(newDebts);
+
                 mTransactionReference.setValue(mTransaction);
             }
         });

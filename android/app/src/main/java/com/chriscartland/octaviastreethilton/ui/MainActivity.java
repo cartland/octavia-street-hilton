@@ -33,6 +33,7 @@ import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
+import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -41,6 +42,7 @@ import com.firebase.client.FirebaseError;
 import com.melnykov.fab.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -181,6 +183,23 @@ public class MainActivity extends ActionBarActivity implements
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "TODO(cartland): Launch activity to create transaction");
+
+                Firebase newItem = mFirebase.child("transactions").push();
+                Transaction newTransaction = new Transaction();
+                newTransaction.setId(newItem.getKey());
+
+                Calendar c = Calendar.getInstance();
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
+                String date = String.format("%04d-%02d-%02d", year, month + 1, day);
+                newTransaction.setDate(date);
+
+                newItem.setValue(newTransaction);
+
+                Intent intent = new Intent(MainActivity.this, TransactionActivity.class);
+                intent.putExtra(Transaction.EXTRA, newTransaction);
+                startActivity(intent);
             }
         });
     }
@@ -258,7 +277,7 @@ public class MainActivity extends ActionBarActivity implements
         Collections.sort(mTransactions, new Comparator<Transaction>() {
             @Override
             public int compare(Transaction lhs, Transaction rhs) {
-                return lhs.compareTo(rhs);
+                return -lhs.compareTo(rhs);
             }
         });
         TransactionArrayAdapter adapter = new TransactionArrayAdapter(this, mTransactions);

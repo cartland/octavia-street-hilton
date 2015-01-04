@@ -47,7 +47,15 @@ public class Transaction implements Parcelable, Comparable<Transaction> {
     private String notes;
     private List<Debt> debts;
 
-    public Transaction() {}
+    public Transaction() {
+        id = "";
+        date = "";
+        amount = "";
+        purchaser = "";
+        description = "";
+        notes = "";
+        debts = new ArrayList<>();
+    }
 
     public String getId() {
         return id;
@@ -173,6 +181,9 @@ public class Transaction implements Parcelable, Comparable<Transaction> {
         dest.writeString(purchaser);
         dest.writeString(description);
         dest.writeString(notes);
+        if (debts == null) {
+            debts = new ArrayList<>();
+        }
         dest.writeArray(debts.toArray());
     }
 
@@ -212,7 +223,8 @@ public class Transaction implements Parcelable, Comparable<Transaction> {
         if (another == null) {
             return 1;
         }
-        int result = date.compareTo(another.date);
+        int result;
+        result = date.compareTo(another.date);
         if (result != 0) {
             return result;
         }
