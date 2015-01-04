@@ -71,9 +71,8 @@ public class TransactionActivity extends ActionBarActivity implements
     private Spinner mPurchaserView;
     private EditText mDescriptionView;
     private EditText mNotesView;
-    private ListView mDebtsView;
+    private EditText mCartlandDebtView;
     private ArrayAdapter<CharSequence> mSpinnerAdapter;
-    private DebtEditorArrayAdapter mDebtsEditorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,9 +192,51 @@ public class TransactionActivity extends ActionBarActivity implements
             }
         });
 
-        mDebtsView = (ListView) findViewById(R.id.transaction_debts_editor);
-        mDebtsEditorAdapter = new DebtEditorArrayAdapter(this, mTransaction);
-        mDebtsView.setAdapter(mDebtsEditorAdapter);
+        // TODO(cartland): Add debts.
+        mCartlandDebtView = (EditText) findViewById(R.id.cartland_debt);
+        mCartlandDebtView.addTextChangedListener(new TextWatcher() {
+            private String current = "";
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!s.toString().equals(current)){
+                    mCartlandDebtView.removeTextChangedListener(this);
+
+                    String cleanString = s.toString().replaceAll("[$,.]", "");
+
+                    try {
+                        double parsed = Double.parseDouble(cleanString);
+                        String formatted = NumberFormat.getCurrencyInstance().format((parsed / 100));
+
+                        current = formatted;
+                        mCartlandDebtView.setText(formatted);
+                        mCartlandDebtView.setSelection(formatted.length());
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, "Could not parse double from string: " + cleanString);
+                    }
+
+                    mCartlandDebtView.addTextChangedListener(this);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
+                Log.d(TAG, "Update cartland amount: " + cleanString);
+                Debt debt = null;
+                for (Debt d : mTransaction.getDebts()) {
+                    if (d.getDebtor().equals("cartland")) {
+                        debt = d;
+                    }
+                }
+                mTransactionReference.child(Transaction.KEY_DEBTS).child(debt.getId()).
+                        child(Debt.KEY_AMOUNT).setValue(cleanString);
+            }
+        });
     }
 
     public void showDatePickerDialog(View v) {
@@ -282,7 +323,9 @@ public class TransactionActivity extends ActionBarActivity implements
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d(TAG, "onChildChanged");
+                Log.d(TAG, "dataSnapshot" + dataSnapshot);
                 mTransaction.updateFieldInSnapshot(dataSnapshot);
+                Log.d(TAG, "mTransaction" + mTransaction);
                 updateUI();
             }
 
@@ -311,6 +354,12 @@ public class TransactionActivity extends ActionBarActivity implements
             mPurchaserView.setSelection(mSpinnerAdapter.getPosition(mTransaction.getPurchaser()));
             mDescriptionView.setText(mTransaction.getDescription());
             mNotesView.setText(mTransaction.getNotes());
+
+            for (Debt debt : mTransaction.getDebts()) {
+                if ("cartland".equals(debt.getDebtor())) {
+                    mCartlandDebtView.setText(debt.getAmount());
+                }
+            }
             mTransactionView.setVisibility(View.VISIBLE);
         } else {
             mTransactionView.setVisibility(View.GONE);

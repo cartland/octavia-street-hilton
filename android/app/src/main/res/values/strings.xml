@@ -27,6 +27,10 @@
     <string name="amount_header">Amount</string>
     <string name="purchase_header">Purchaser</string>
     <string name="notes_header">Notes</string>
+    <string name="cartland_header">cartland</string>
+    <string name="npstanford_header">npstanford</string>
+    <string name="rcrabb_header">rcrabb</string>
+    <string name="stromme_header">stromme</string>
 
     <string-array name="transactions_array">
         <item>All</item>
