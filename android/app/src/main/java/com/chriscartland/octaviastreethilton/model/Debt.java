@@ -18,18 +18,27 @@ package com.chriscartland.octaviastreethilton.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
+import com.firebase.client.DataSnapshot;
 
 /**
  * The part of a transaction representing a debt to the purchaser.
  */
 public class Debt implements Parcelable {
 
-    private final String amount;
-    private final String debtor;
+    private static final String TAG = Debt.class.getSimpleName();
 
-    public Debt(String amount, String debtor) {
-        this.amount = amount;
-        this.debtor = debtor;
+    public static final String KEY_AMOUNT = "amount";
+    public static final String KEY_DEBTOR = "debtor";
+    private String id;
+    private String amount;
+    private String debtor;
+
+    public Debt() {}
+
+    public String getId() {
+        return id;
     }
 
     public String getAmount() {
@@ -40,30 +49,45 @@ public class Debt implements Parcelable {
         return debtor;
     }
 
-    public static class Builder {
+    public void setId(String id) {
+        this.id = id;
+    }
 
-        private String amount;
-        private String debtor;
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
 
-        public Builder() {}
+    public void setDebtor(String debtor) {
+        this.debtor = debtor;
+    }
 
-        public Debt build() {
-            return new Debt(amount, debtor);
+    public static Debt newFromSnapshot(DataSnapshot debtData) {
+        Debt debt = new Debt();
+        debt.setId(debtData.getKey());
+        for (DataSnapshot debtField : debtData.getChildren()) {
+            debt.updateFieldInSnapshot(debtField);
         }
+        return debt;
+    }
 
-        public void setAmount(String amount) {
-            this.amount = amount;
+    public void updateFieldInSnapshot(DataSnapshot dataSnapshot) {
+        String value = dataSnapshot.getValue().toString();
+        switch (dataSnapshot.getKey()) {
+            case Debt.KEY_AMOUNT:
+                setAmount(value);
+                break;
+            case Debt.KEY_DEBTOR:
+                setDebtor(value);
+                break;
+            default:
+                Log.e(TAG, "Unknown field in debt: " + dataSnapshot.getKey());
+                break;
         }
-
-        public void setDebtor(String debtor) {
-            this.debtor = debtor;
-        }
-
     }
 
     @Override
     public String toString() {
-        return debtor + ": " + amount;
+        return id + "-" + debtor + ": " + amount;
     }
 
     @Override
@@ -73,6 +97,7 @@ public class Debt implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(amount);
         dest.writeString(debtor);
     }
@@ -81,9 +106,11 @@ public class Debt implements Parcelable {
             new Creator<Debt>() {
                 @Override
                 public Debt createFromParcel(Parcel source) {
-                    String amount = source.readString();
-                    String debtor = source.readString();
-                    return new Debt(amount, debtor);
+                    Debt debt = new Debt();
+                    debt.setId(source.readString());
+                    debt.setAmount(source.readString());
+                    debt.setDebtor(source.readString());
+                    return debt;
                 }
 
                 @Override
@@ -91,4 +118,16 @@ public class Debt implements Parcelable {
                     return new Debt[size];
                 }
             };
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Debt)) {
+            return false;
+        }
+        Debt d = (Debt)o;
+        return id.equals(d.id);
+    }
 }

@@ -32,6 +32,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -39,6 +40,7 @@ import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
 import com.chriscartland.octaviastreethilton.model.Auth;
+import com.chriscartland.octaviastreethilton.model.Debt;
 import com.chriscartland.octaviastreethilton.model.Transaction;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -69,7 +71,9 @@ public class TransactionActivity extends ActionBarActivity implements
     private Spinner mPurchaserView;
     private EditText mDescriptionView;
     private EditText mNotesView;
+    private ListView mDebtsView;
     private ArrayAdapter<CharSequence> mSpinnerAdapter;
+    private DebtEditorArrayAdapter mDebtsEditorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,6 +192,10 @@ public class TransactionActivity extends ActionBarActivity implements
                 return false;
             }
         });
+
+        mDebtsView = (ListView) findViewById(R.id.transaction_debts_editor);
+        mDebtsEditorAdapter = new DebtEditorArrayAdapter(this, mTransaction);
+        mDebtsView.setAdapter(mDebtsEditorAdapter);
     }
 
     public void showDatePickerDialog(View v) {
@@ -297,7 +305,6 @@ public class TransactionActivity extends ActionBarActivity implements
     }
 
     private void updateUI() {
-        Log.d(TAG, "updateUI()");
         if (mTransaction != null) {
             mDateView.setText(mTransaction.getDate());
             mAmountView.setText(mTransaction.getAmount());

@@ -137,27 +137,17 @@ public class Transaction implements Parcelable, Comparable<Transaction> {
             case Transaction.KEY_DEBTS:
                 setDebts(parseDebtsFromSnapshot(dataSnapshot));
                 break;
+            default:
+                Log.e(TAG, "Unknown field in transaction: " + dataSnapshot.getKey());
+                break;
         }
     }
 
     private static List<Debt> parseDebtsFromSnapshot(DataSnapshot value) {
         ArrayList<Debt> result = new ArrayList<>();
         for (DataSnapshot debtData : value.getChildren()) {
-            Debt.Builder builder = new Debt.Builder();
-            for (DataSnapshot debtField : debtData.getChildren()) {
-                switch (debtField.getKey()) {
-                    case "amount":
-                        builder.setAmount(debtField.getValue().toString());
-                        break;
-                    case "debtor":
-                        builder.setDebtor(debtField.getValue().toString());
-                        break;
-                    default:
-                        Log.e(TAG, "Unknown field in debt: " + debtField.getKey());
-                        break;
-                }
-            }
-            result.add(builder.build());
+            Debt debt = Debt.newFromSnapshot(debtData);
+            result.add(debt);
         }
         return result;
     }

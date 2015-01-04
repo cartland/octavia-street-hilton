@@ -135,8 +135,9 @@
                     />
 
                 <ListView
+                    android:id="@+id/transaction_debts_editor"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/transaction_debts_list_height"
                     >
                 </ListView>
 
