@@ -230,14 +230,12 @@ public class MainActivity extends ActionBarActivity implements
         mTransactionListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildAdded");
                 mTransactions.add(0, Transaction.newFromSnapshot(dataSnapshot));
                 updateTransactionsUi();
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d(TAG, "onChildChanged");
                 Transaction newTransaction = Transaction.newFromSnapshot(dataSnapshot);
                 int index = mTransactions.indexOf(newTransaction);
                 mTransactions.remove(index);

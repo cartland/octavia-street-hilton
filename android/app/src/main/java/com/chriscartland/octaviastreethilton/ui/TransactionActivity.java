@@ -23,20 +23,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.FirebaseEditText;
+import com.chriscartland.octaviastreethilton.FirebaseMoneyEditText;
 import com.chriscartland.octaviastreethilton.R;
 import com.chriscartland.octaviastreethilton.Utils;
 import com.chriscartland.octaviastreethilton.auth.AuthManager;
@@ -48,9 +45,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -69,9 +63,8 @@ public class TransactionActivity extends ActionBarActivity implements
     private Firebase mTransactionReference;
 
     private View mTransactionView;
-    private Button mSaveButtonView;
     private TextView mDateView;
-    private EditText mAmountView;
+    private FirebaseMoneyEditText mAmountView;
     private Spinner mPurchaserView;
     private FirebaseEditText mDescriptionView;
     private FirebaseEditText mNotesView;
@@ -106,109 +99,11 @@ public class TransactionActivity extends ActionBarActivity implements
     private void createViews() {
         mTransactionView = findViewById(R.id.transaction);
 
-        mSaveButtonView = (Button)findViewById(R.id.save_button);
-        mSaveButtonView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSaveButtonView.requestFocus();
-                mTransaction.setDescription(mDescriptionView.getText().toString());
-                mTransaction.setNotes(mNotesView.getText().toString());
-                String[] names = getResources().getStringArray(R.array.osh_members);
-                ArrayList<String> remainingNames = new ArrayList<>(Arrays.asList(names));
-                String cleanString = "";
-                for (Debt debt : mTransaction.getDebts()) {
-                    switch (debt.getDebtor()) {
-                        case Utils.CARTLAND_NAME:
-                            cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
-                            remainingNames.remove(debt.getDebtor());
-                            break;
-                        case Utils.NPSTANFORD_NAME:
-                            cleanString = mNpstanfordDebtView.getText().toString().replaceAll("[$,]", "");
-                            remainingNames.remove(debt.getDebtor());
-                            break;
-                        case Utils.RCRABB_NAME:
-                            cleanString = mRcrabbDebtView.getText().toString().replaceAll("[$,]", "");
-                            remainingNames.remove(debt.getDebtor());
-                            break;
-                        case Utils.STROMME_NAME:
-                            cleanString = mStrommeDebtView.getText().toString().replaceAll("[$,]", "");
-                            remainingNames.remove(debt.getDebtor());
-                            break;
-                    }
-                    Log.d(TAG, "UIDEBTS save data id=" + debt.getId() + " name=" + debt.getDebtor() + " amount=" + cleanString);
-                    debt.setAmount(cleanString);
-                }
-                ArrayList<Debt> newDebts = new ArrayList<>(mTransaction.getDebts());
-                for (String name : remainingNames) {
-                    switch (name) {
-                        case Utils.CARTLAND_NAME:
-                            cleanString = mCartlandDebtView.getText().toString().replaceAll("[$,]", "");
-                            break;
-                        case Utils.NPSTANFORD_NAME:
-                            cleanString = mNpstanfordDebtView.getText().toString().replaceAll("[$,]", "");
-                            break;
-                        case Utils.RCRABB_NAME:
-                            cleanString = mRcrabbDebtView.getText().toString().replaceAll("[$,]", "");
-                            break;
-                        case Utils.STROMME_NAME:
-                            cleanString = mStrommeDebtView.getText().toString().replaceAll("[$,]", "");
-                            break;
-                    }
-                    Debt debt = new Debt();
-                    debt.setAmount(cleanString);
-                    debt.setDebtor(name);
-                    newDebts.add(debt);
-                }
-                mTransaction.setDebts(newDebts);
-
-                mTransactionReference.setValue(mTransaction);
-            }
-        });
-
         mDateView = (TextView) findViewById(R.id.transaction_date_editor);
         mDateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePickerDialog(v);
-            }
-        });
-
-        mAmountView = (EditText) findViewById(R.id.transaction_amount_editor);
-        mAmountView.addTextChangedListener(new TextWatcher() {
-            private String current = "";
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(current)){
-                    mAmountView.removeTextChangedListener(this);
-
-                    String cleanString = s.toString().replaceAll("[$,.]", "");
-
-                    try {
-                        double parsed = Double.parseDouble(cleanString);
-                        String formatted = NumberFormat.getCurrencyInstance().format((parsed / 100));
-
-                        current = formatted;
-                        mAmountView.setText(formatted);
-                        mAmountView.setSelection(formatted.length());
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "Could not parse double from string: " + cleanString);
-                    }
-
-                    mAmountView.addTextChangedListener(this);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String cleanString = mAmountView.getText().toString().replaceAll("[$,]", "");
-                Log.d(TAG, "Update amount: " + cleanString);
-                mTransaction.setAmount(cleanString);
-                mTransactionReference.child(Transaction.KEY_AMOUNT).setValue(cleanString);
             }
         });
 
@@ -229,6 +124,8 @@ public class TransactionActivity extends ActionBarActivity implements
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+
+        mAmountView = (FirebaseMoneyEditText) findViewById(R.id.transaction_amount_editor);
 
         mDescriptionView = (FirebaseEditText) findViewById(R.id.transaction_description_editor);
         mNotesView = (FirebaseEditText) findViewById(R.id.transaction_notes_editor);
@@ -343,6 +240,8 @@ public class TransactionActivity extends ActionBarActivity implements
             }
         };
 
+        mAmountView.setFirebase(mTransactionReference.child(Transaction.KEY_AMOUNT));
+
         mDescriptionView.setFirebase(mTransactionReference.child(Transaction.KEY_DESCRIPTION));
         mNotesView.setFirebase(mTransactionReference.child(Transaction.KEY_NOTES));
 
@@ -356,8 +255,9 @@ public class TransactionActivity extends ActionBarActivity implements
     private void updateUI() {
         if (mTransaction != null) {
             mDateView.setText(mTransaction.getDate());
-            mAmountView.setText(mTransaction.getAmount());
             mPurchaserView.setSelection(mSpinnerAdapter.getPosition(mTransaction.getPurchaser()));
+
+            mAmountView.setTextWithoutSaving(mTransaction.getAmount());
 
             mDescriptionView.setTextWithoutSaving(mTransaction.getDescription());
             mNotesView.setTextWithoutSaving(mTransaction.getNotes());

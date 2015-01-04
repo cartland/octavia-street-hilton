@@ -35,14 +35,14 @@ public class FirebaseEditText extends EditText {
 
     private static final String TAG = FirebaseEditText.class.getSimpleName();
 
-    private static final long SAVE_TIME_DELAY_MS = 1000;
+    protected static final long SAVE_TIME_DELAY_MS = 1000;
 
-    private Firebase mRef;
-    private Timer mClickTrackingTimer;
-    private int mSelStart;
-    private int mSelEnd;
-    private TextWatcher mTextWater;
-    private boolean mNoSave;
+    protected Firebase mRef;
+    protected Timer mClickTrackingTimer;
+    protected int mSelStart;
+    protected int mSelEnd;
+    protected TextWatcher mTextWatcher;
+    protected boolean mNoSave;
 
     public FirebaseEditText(Context context) {
         super(context);
@@ -64,36 +64,21 @@ public class FirebaseEditText extends EditText {
         super.onSelectionChanged(selStart, selEnd);
         if (mNoSave) {
             // Do not change the cursor selection when the text is programatically changed.
-            setSelection(mSelStart, Math.min(mSelEnd, this.length()));
+            try {
+                setSelection(mSelStart, Math.min(mSelEnd, this.length()));
+            } catch (IndexOutOfBoundsException e) {
+                // TODO(cartland): Properly compute the selection bounds.
+            }
         } else {
             mSelStart = selStart;
             mSelEnd = selEnd;
         }
     }
 
-    private void init() {
-        mTextWater = new TextWatcher() {
+    protected void init() {
+        mTextWatcher = new FirebaseTextWatcher();
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mNoSave) {
-                    // Do not try to save text when is is programatically changed.
-                    mNoSave = false;
-                } else {
-                    delaySaveText();
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        };
-
-        this.addTextChangedListener(mTextWater);
+        this.addTextChangedListener(mTextWatcher);
     }
 
     public void setFirebase(Firebase mRef) {
@@ -110,7 +95,7 @@ public class FirebaseEditText extends EditText {
         this.setText(text);
     }
 
-    private void delaySaveText() {
+    protected void delaySaveText() {
         Log.d(TAG, "delaySaveText()");
         if (null != mClickTrackingTimer) {
             mClickTrackingTimer.cancel();
@@ -119,17 +104,42 @@ public class FirebaseEditText extends EditText {
         mClickTrackingTimer.schedule(new SaveAfterDelayTask(), SAVE_TIME_DELAY_MS);
     }
 
-    private class SaveAfterDelayTask extends TimerTask {
+    protected class SaveAfterDelayTask extends TimerTask {
         @Override
         public void run() {
             save();
         }
     }
 
-    private void save() {
+    protected void save() {
         Log.d(TAG, "save()");
         if (mRef != null) {
             mRef.setValue(this.getText().toString());
+        }
+    }
+
+    protected void maybeSaveLater() {
+        if (mNoSave) {
+            // Do not try to save text when is is programatically changed.
+            mNoSave = false;
+        } else {
+            delaySaveText();
+        }
+    }
+
+    protected class FirebaseTextWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            maybeSaveLater();
         }
     }
 }

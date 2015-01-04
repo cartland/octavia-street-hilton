@@ -60,13 +60,6 @@
                     android:focusable="true" android:focusableInTouchMode="true"
                     android:layout_width="0px" android:layout_height="0px"/>
 
-                <Button
-                    android:id="@+id/save_button"
-                    android:text="@string/save"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/save_button_text_size"
-                    />
                 <TextView
                     android:text="@string/description_header"
                     android:layout_width="match_parent"
@@ -102,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/small_header_height"
                     />
-                <EditText
+                <com.chriscartland.octaviastreethilton.FirebaseMoneyEditText
                     android:id="@+id/transaction_amount_editor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
