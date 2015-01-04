@@ -21,15 +21,18 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.FirebaseEditText;
@@ -198,7 +201,33 @@ public class TransactionActivity extends ActionBarActivity implements
     private void createToolbar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.color_primary));
+
         setSupportActionBar(toolbar);
+
+        toolbar.inflateMenu(R.menu.toolbar_menu);
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+
+                switch (menuItem.getItemId()){
+                    case R.id.action_share:
+                        Toast.makeText(TransactionActivity.this, "Share", Toast.LENGTH_SHORT).show();
+                        return true;
+                }
+
+                return false;
+            }
+        });
+
+        // Up Navigation
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_36dp);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NavUtils.navigateUpFromSameTask(TransactionActivity.this);
+            }
+        });
     }
 
     private void createFirebase() {

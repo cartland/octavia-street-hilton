@@ -27,7 +27,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import com.chriscartland.octaviastreethilton.Application;
 import com.chriscartland.octaviastreethilton.R;
